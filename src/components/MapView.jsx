@@ -1,73 +1,75 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { mapsUrl } from "../utils.js";
 
 export default function MapView({ ideas, onSelect }) {
+  const mapRef = useRef(null);
+  const mapInstanceRef = useRef(null);
+  const markersRef = useRef([]);
   const [sel, setSel] = useState(null);
+  const [mapsLoaded, setMapsLoaded] = useState(!!window.google?.maps);
 
-  const minLat = Math.min(...ideas.map((i) => i.lat)) - 0.06;
-  const maxLat = Math.max(...ideas.map((i) => i.lat)) + 0.06;
-  const minLng = Math.min(...ideas.map((i) => i.lng)) - 0.06;
-  const maxLng = Math.max(...ideas.map((i) => i.lng)) + 0.06;
+  // Load Google Maps script once
+  useEffect(() => {
+    if (window.google?.maps) { setMapsLoaded(true); return; }
+    const key = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+    if (!key) return;
+    const script = document.createElement("script");
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${key}`;
+    script.async = true;
+    script.onload = () => setMapsLoaded(true);
+    document.head.appendChild(script);
+  }, []);
 
-  const pos = (idea) => ({
-    x: ((idea.lng - minLng) / (maxLng - minLng)) * 100,
-    y: 100 - ((idea.lat - minLat) / (maxLat - minLat)) * 100,
-  });
+  // Init map once script is loaded
+  useEffect(() => {
+    if (!mapsLoaded || !mapRef.current || mapInstanceRef.current) return;
+    mapInstanceRef.current = new window.google.maps.Map(mapRef.current, {
+      center: { lat: 37.45, lng: -122.18 },
+      zoom: 10,
+      mapTypeControl: false,
+      streetViewControl: false,
+      fullscreenControl: false,
+    });
+  }, [mapsLoaded]);
+
+  // Add markers whenever ideas change
+  useEffect(() => {
+    if (!mapInstanceRef.current) return;
+    markersRef.current.forEach((m) => m.setMap(null));
+    markersRef.current = ideas.map((idea) => {
+      const marker = new window.google.maps.Marker({
+        position: { lat: idea.lat, lng: idea.lng },
+        map: mapInstanceRef.current,
+        title: idea.title,
+        label: { text: idea.emoji, fontSize: "18px", fontFamily: "serif" },
+      });
+      marker.addListener("click", () => {
+        setSel(idea.id);
+        mapInstanceRef.current.panTo({ lat: idea.lat, lng: idea.lng });
+      });
+      return marker;
+    });
+  }, [mapsLoaded, ideas]);
 
   const selIdea = ideas.find((i) => i.id === sel);
 
+  if (!import.meta.env.VITE_GOOGLE_MAPS_API_KEY) {
+    return (
+      <div style={{ padding: 24, background: "#fef9c3", border: "1px solid #fef08a", borderRadius: 12, fontSize: 13, color: "#a16207", lineHeight: 1.6 }}>
+        To enable the map, add <strong>VITE_GOOGLE_MAPS_API_KEY</strong> to your Vercel environment variables and redeploy.
+      </div>
+    );
+  }
+
   return (
     <div>
-      {/* Map canvas */}
-      <div style={{
-        position: "relative", width: "100%", paddingBottom: "60%",
-        background: "linear-gradient(135deg, #e0f2fe 0%, #f0fdf4 100%)",
-        border: "1px solid #bae6fd", borderRadius: 14, overflow: "hidden",
-      }}>
-        <div style={{ position: "absolute", top: 8, left: 12, fontSize: 10, color: "#64748b", fontStyle: "italic" }}>
-          Bay Area — tap a pin to see details
-        </div>
+      <div
+        ref={mapRef}
+        style={{ width: "100%", height: 380, borderRadius: 14, overflow: "hidden", border: "1px solid #e5e7eb", marginBottom: 12 }}
+      />
 
-        {/* Grid lines */}
-        <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}>
-          {[25, 50, 75].map((p) => (
-            <g key={p}>
-              <line x1={`${p}%`} y1="0" x2={`${p}%`} y2="100%" stroke="#bae6fd" strokeWidth="1" strokeDasharray="3 3" />
-              <line x1="0" y1={`${p}%`} x2="100%" y2={`${p}%`} stroke="#bae6fd" strokeWidth="1" strokeDasharray="3 3" />
-            </g>
-          ))}
-        </svg>
-
-        {/* Pins */}
-        {ideas.map((idea) => {
-          const { x, y } = pos(idea);
-          const isSel = sel === idea.id;
-          return (
-            <button
-              key={idea.id}
-              onClick={() => setSel(isSel ? null : idea.id)}
-              title={idea.title}
-              style={{
-                position: "absolute",
-                left: `${x}%`, top: `${y}%`,
-                transform: "translate(-50%,-50%)",
-                width: 32, height: 32, borderRadius: "50%",
-                border: `2px solid ${isSel ? "#7c3aed" : "#a5b4fc"}`,
-                background: isSel ? "#7c3aed" : "#fff",
-                fontSize: 15, cursor: "pointer",
-                boxShadow: isSel ? "0 0 0 3px rgba(124,58,237,0.2)" : "0 1px 4px rgba(0,0,0,0.15)",
-                zIndex: isSel ? 10 : 2, transition: "all 0.15s",
-              }}
-            >
-              {idea.emoji}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Selected card */}
       {selIdea && (
-        <div style={{ marginTop: 12, padding: 14, background: "#fff", border: "1.5px solid #c4b5fd", borderRadius: 12 }}>
+        <div style={{ padding: 14, background: "#fff", border: "1.5px solid #c4b5fd", borderRadius: 12, marginBottom: 12 }}>
           <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
             <span style={{ fontSize: 24 }}>{selIdea.emoji}</span>
             <div style={{ flex: 1 }}>
@@ -80,17 +82,21 @@ export default function MapView({ ideas, onSelect }) {
                 <button onClick={() => { setSel(null); onSelect(selIdea); }} style={{ fontFamily: "Georgia, serif", fontSize: 11, padding: "5px 11px", borderRadius: 7, background: "#f5f3ff", color: "#7c3aed", border: "1px solid #ddd6fe", cursor: "pointer", fontWeight: 600 }}>
                   See Details
                 </button>
+                <button onClick={() => setSel(null)} style={{ fontFamily: "Georgia, serif", fontSize: 11, padding: "5px 11px", borderRadius: 7, background: "#f9fafb", color: "#9ca3af", border: "1px solid #e5e7eb", cursor: "pointer", fontWeight: 600 }}>
+                  Close
+                </button>
               </div>
             </div>
-            <button onClick={() => setSel(null)} style={{ background: "none", border: "none", cursor: "pointer", color: "#9ca3af", fontSize: 18, lineHeight: 1 }}>×</button>
           </div>
         </div>
       )}
 
-      {/* Legend grid */}
-      <div style={{ marginTop: 14, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
         {ideas.map((idea) => (
-          <button key={idea.id} onClick={() => setSel(sel === idea.id ? null : idea.id)} style={{
+          <button key={idea.id} onClick={() => {
+            setSel(sel === idea.id ? null : idea.id);
+            if (mapInstanceRef.current) mapInstanceRef.current.panTo({ lat: idea.lat, lng: idea.lng });
+          }} style={{
             display: "flex", alignItems: "center", gap: 7,
             padding: "7px 9px",
             background: sel === idea.id ? "#f5f3ff" : "#fafafa",
