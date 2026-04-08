@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { T, TAG_COLORS, btn } from "../theme.js";
+import { T, TAG_COLORS, btn, getIdeaIcon } from "../theme.js";
 import { makeICS, mapsUrl } from "../utils.js";
 
 const REACTIONS = ["🔥", "👍", "🤔", "👎"];
@@ -110,7 +110,10 @@ export default function IdeaCard({ idea, isOpen, onToggle, onDone, userName, rea
 
       {/* Header */}
       <button onClick={onToggle} style={{ width: "100%", display: "flex", alignItems: "center", gap: 14, padding: "16px 18px", background: "transparent", border: "none", cursor: "pointer", textAlign: "left", fontFamily: T.fontFamily }}>
-        <span style={{ fontSize: 22, flexShrink: 0, lineHeight: 1 }}>{idea.emoji}</span>
+        <span
+          dangerouslySetInnerHTML={{ __html: getIdeaIcon(idea.tags) }}
+          style={{ width: 28, height: 28, flexShrink: 0, color: T.accent, display: "flex", alignItems: "center", justifyContent: "center" }}
+        />
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 14, fontWeight: 600, color: idea.done ? T.textMuted : T.text, letterSpacing: "-0.01em" }}>
             {idea.done ? <s>{idea.title}</s> : idea.title}

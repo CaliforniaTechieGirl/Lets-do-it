@@ -32,7 +32,7 @@ export default function AddByUrl({ onAdd }) {
     <div>
       <h2 style={{ fontSize: 17, fontWeight: 600, color: T.text, margin: "0 0 6px", letterSpacing: "-0.01em" }}>Add a new idea</h2>
       <p style={{ fontSize: 13, color: T.textMid, lineHeight: 1.65, margin: "0 0 22px" }}>
-        Paste a link to an event, venue, or activity page. Claude will read it and fill in the details automatically.
+        Paste a link to an event, venue, or activity page. Let's Do It will read it and fill in the details automatically.
       </p>
 
       {!draft && (

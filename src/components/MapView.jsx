@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { T } from "../theme.js";
 import { mapsUrl } from "../utils.js";
 
 export default function MapView({ ideas, onSelect }) {
@@ -8,7 +9,6 @@ export default function MapView({ ideas, onSelect }) {
   const [sel, setSel] = useState(null);
   const [mapsLoaded, setMapsLoaded] = useState(!!window.google?.maps);
 
-  // Load Google Maps script once
   useEffect(() => {
     if (window.google?.maps) { setMapsLoaded(true); return; }
     const key = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
@@ -20,7 +20,6 @@ export default function MapView({ ideas, onSelect }) {
     document.head.appendChild(script);
   }, []);
 
-  // Init map once script is loaded
   useEffect(() => {
     if (!mapsLoaded || !mapRef.current || mapInstanceRef.current) return;
     mapInstanceRef.current = new window.google.maps.Map(mapRef.current, {
@@ -29,19 +28,34 @@ export default function MapView({ ideas, onSelect }) {
       mapTypeControl: false,
       streetViewControl: false,
       fullscreenControl: false,
+      styles: [
+        { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] },
+        { featureType: "transit", elementType: "labels", stylers: [{ visibility: "off" }] },
+      ],
     });
   }, [mapsLoaded]);
 
-  // Add markers whenever ideas change
   useEffect(() => {
     if (!mapInstanceRef.current) return;
-    markersRef.current.forEach((m) => m.setMap(null));
-    markersRef.current = ideas.map((idea) => {
+    markersRef.current.forEach(m => m.setMap(null));
+    markersRef.current = ideas.map((idea, idx) => {
+      // Numbered pin using a custom SVG marker
+      const num = idx + 1;
+      const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="40" viewBox="0 0 32 40">
+          <path d="M16 0C7.16 0 0 7.16 0 16c0 10 16 24 16 24S32 26 32 16C32 7.16 24.84 0 16 0z" fill="${T.accent}"/>
+          <circle cx="16" cy="16" r="11" fill="white"/>
+          <text x="16" y="21" text-anchor="middle" font-family="Plus Jakarta Sans, system-ui, sans-serif" font-size="${num > 9 ? 10 : 12}" font-weight="600" fill="${T.accent}">${num}</text>
+        </svg>`;
       const marker = new window.google.maps.Marker({
         position: { lat: idea.lat, lng: idea.lng },
         map: mapInstanceRef.current,
         title: idea.title,
-        label: { text: idea.emoji, fontSize: "18px", fontFamily: "serif" },
+        icon: {
+          url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg),
+          scaledSize: new window.google.maps.Size(32, 40),
+          anchor: new window.google.maps.Point(16, 40),
+        },
       });
       marker.addListener("click", () => {
         setSel(idea.id);
@@ -51,11 +65,11 @@ export default function MapView({ ideas, onSelect }) {
     });
   }, [mapsLoaded, ideas]);
 
-  const selIdea = ideas.find((i) => i.id === sel);
+  const selIdea = ideas.find(i => i.id === sel);
 
   if (!import.meta.env.VITE_GOOGLE_MAPS_API_KEY) {
     return (
-      <div style={{ padding: 24, background: "#fef9c3", border: "1px solid #fef08a", borderRadius: 12, fontSize: 13, color: "#a16207", lineHeight: 1.6 }}>
+      <div style={{ padding: 20, background: T.warningBg, border: `1px solid ${T.warningBorder}`, borderRadius: T.radiusMd, fontSize: 13, color: T.warning, lineHeight: 1.6 }}>
         To enable the map, add <strong>VITE_GOOGLE_MAPS_API_KEY</strong> to your Vercel environment variables and redeploy.
       </div>
     );
@@ -63,49 +77,53 @@ export default function MapView({ ideas, onSelect }) {
 
   return (
     <div>
-      <div
-        ref={mapRef}
-        style={{ width: "100%", height: 380, borderRadius: 14, overflow: "hidden", border: "1px solid #e5e7eb", marginBottom: 12 }}
-      />
+      {/* Map */}
+      <div ref={mapRef} style={{ width: "100%", height: 380, borderRadius: T.radiusLg, overflow: "hidden", border: `1px solid ${T.border}`, marginBottom: 14 }} />
 
-      {selIdea && (
-        <div style={{ padding: 14, background: "#fff", border: "1.5px solid #c4b5fd", borderRadius: 12, marginBottom: 12 }}>
-          <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
-            <span style={{ fontSize: 24 }}>{selIdea.emoji}</span>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontWeight: 600, fontSize: 14, color: "#111827" }}>{selIdea.title}</div>
-              <div style={{ fontSize: 11, color: "#6b7280", margin: "2px 0 8px" }}>📍 {selIdea.location}</div>
-              <div style={{ display: "flex", gap: 7 }}>
-                <a href={mapsUrl(selIdea)} target="_blank" rel="noreferrer" style={{ fontFamily: "Georgia, serif", fontSize: 11, padding: "5px 11px", borderRadius: 7, background: "#f0fdf4", color: "#16a34a", border: "1px solid #bbf7d0", textDecoration: "none", fontWeight: 600 }}>
-                  Open in Maps ↗
-                </a>
-                <button onClick={() => { setSel(null); onSelect(selIdea); }} style={{ fontFamily: "Georgia, serif", fontSize: 11, padding: "5px 11px", borderRadius: 7, background: "#f5f3ff", color: "#7c3aed", border: "1px solid #ddd6fe", cursor: "pointer", fontWeight: 600 }}>
-                  See Details
-                </button>
-                <button onClick={() => setSel(null)} style={{ fontFamily: "Georgia, serif", fontSize: 11, padding: "5px 11px", borderRadius: 7, background: "#f9fafb", color: "#9ca3af", border: "1px solid #e5e7eb", cursor: "pointer", fontWeight: 600 }}>
-                  Close
-                </button>
+      {/* Selected idea card */}
+      {selIdea && (() => {
+        const num = ideas.findIndex(i => i.id === selIdea.id) + 1;
+        return (
+          <div style={{ padding: 14, background: T.surface, border: `1.5px solid ${T.accentMid}`, borderRadius: T.radiusMd, marginBottom: 14 }}>
+            <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+              <div style={{ width: 28, height: 28, borderRadius: "50%", background: T.accent, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, flexShrink: 0 }}>
+                {num}
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 600, fontSize: 14, color: T.text }}>{selIdea.title}</div>
+                <div style={{ fontSize: 11, color: T.textMuted, margin: "3px 0 10px" }}>{selIdea.location}</div>
+                <div style={{ display: "flex", gap: 7 }}>
+                  <a href={mapsUrl(selIdea)} target="_blank" rel="noreferrer" style={{ fontFamily: T.fontFamily, fontSize: 11, padding: "5px 11px", borderRadius: T.radius, background: T.successBg, color: T.success, border: `1px solid ${T.successBorder}`, textDecoration: "none", fontWeight: 500 }}>
+                    Open in Maps ↗
+                  </a>
+                  <button onClick={() => { setSel(null); onSelect(selIdea); }} style={{ fontFamily: T.fontFamily, fontSize: 11, padding: "5px 11px", borderRadius: T.radius, background: T.accentLight, color: T.accent, border: `1px solid ${T.accentMid}`, cursor: "pointer", fontWeight: 500 }}>
+                    See Details
+                  </button>
+                  <button onClick={() => setSel(null)} style={{ fontFamily: T.fontFamily, fontSize: 11, padding: "5px 11px", borderRadius: T.radius, background: T.bg, color: T.textMuted, border: `1px solid ${T.border}`, cursor: "pointer", fontWeight: 500 }}>
+                    Close
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
+      {/* Numbered legend */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
-        {ideas.map((idea) => (
-          <button key={idea.id} onClick={() => {
-            setSel(sel === idea.id ? null : idea.id);
-            if (mapInstanceRef.current) mapInstanceRef.current.panTo({ lat: idea.lat, lng: idea.lng });
-          }} style={{
-            display: "flex", alignItems: "center", gap: 7,
-            padding: "7px 9px",
-            background: sel === idea.id ? "#f5f3ff" : "#fafafa",
-            border: `1px solid ${sel === idea.id ? "#c4b5fd" : "#f3f4f6"}`,
-            borderRadius: 7, cursor: "pointer", textAlign: "left",
-            fontFamily: "Georgia, serif",
-          }}>
-            <span style={{ fontSize: 14 }}>{idea.emoji}</span>
-            <span style={{ fontSize: 11, fontWeight: 500, color: "#374151", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+        {ideas.map((idea, idx) => (
+          <button
+            key={idea.id}
+            onClick={() => {
+              setSel(sel === idea.id ? null : idea.id);
+              if (mapInstanceRef.current) mapInstanceRef.current.panTo({ lat: idea.lat, lng: idea.lng });
+            }}
+            style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 10px", background: sel === idea.id ? T.accentLight : T.surface, border: `1px solid ${sel === idea.id ? T.accentMid : T.border}`, borderRadius: T.radius, cursor: "pointer", textAlign: "left", fontFamily: T.fontFamily, transition: "all 0.1s" }}
+          >
+            <div style={{ width: 22, height: 22, borderRadius: "50%", background: sel === idea.id ? T.accent : T.accentLight, color: sel === idea.id ? "#fff" : T.accent, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, flexShrink: 0 }}>
+              {idx + 1}
+            </div>
+            <span style={{ fontSize: 11, fontWeight: 500, color: T.textMid, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
               {idea.title}
             </span>
           </button>
