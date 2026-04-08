@@ -1,15 +1,14 @@
-import { TAG_COLORS } from "../data.js";
+import { useState } from "react";
+import { T, TAG_COLORS, btn } from "../theme.js";
 import { makeICS, mapsUrl } from "../utils.js";
 
+const REACTIONS = ["🔥", "👍", "🤔", "👎"];
+const REACTION_LABELS = { "🔥": "Yes!", "👍": "Interested", "🤔": "Maybe", "👎": "Not for me" };
+
 function TagPill({ tag }) {
-  const c = TAG_COLORS[tag] || { bg: "#f1f5f9", text: "#475569", border: "#e2e8f0" };
+  const c = TAG_COLORS[tag] || { bg: T.surfaceAlt, text: T.textMid, border: T.border };
   return (
-    <span style={{
-      fontSize: 10, fontWeight: 600, letterSpacing: "0.05em",
-      padding: "2px 8px", borderRadius: 20,
-      background: c.bg, color: c.text, border: `1px solid ${c.border}`,
-      textTransform: "uppercase",
-    }}>
+    <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.06em", padding: "2px 8px", borderRadius: 20, background: c.bg, color: c.text, border: `1px solid ${c.border}`, textTransform: "uppercase", whiteSpace: "nowrap" }}>
       {tag}
     </span>
   );
@@ -17,144 +16,173 @@ function TagPill({ tag }) {
 
 function InfoBlock({ label, value, span }) {
   return (
-    <div style={{
-      background: "#f9fafb", border: "1px solid #f3f4f6",
-      borderRadius: 8, padding: "9px 12px",
-      gridColumn: span === 2 ? "1 / -1" : undefined,
-    }}>
-      <p style={{ fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "#9ca3af", margin: "0 0 3px", fontWeight: 700 }}>{label}</p>
-      <p style={{ fontSize: 12, color: "#374151", margin: 0, lineHeight: 1.5 }}>{value}</p>
+    <div style={{ background: T.bg, border: `1px solid ${T.border}`, borderRadius: T.radius, padding: "9px 12px", gridColumn: span === 2 ? "1 / -1" : undefined }}>
+      <p style={{ fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: T.textMuted, margin: "0 0 3px", fontWeight: 600 }}>{label}</p>
+      <p style={{ fontSize: 12, color: T.textMid, margin: 0, lineHeight: 1.5 }}>{value}</p>
     </div>
   );
 }
 
-function Btn({ onClick, children, style = {} }) {
+function ReactionBar({ ideaId, userName, reactions, onReact }) {
+  const ideaReactions = reactions[ideaId] || {};
+  const myReaction = ideaReactions[userName];
+
+  // Count each reaction
+  const counts = {};
+  Object.values(ideaReactions).forEach(r => { counts[r] = (counts[r] || 0) + 1; });
+
+  // Who reacted with what (for tooltip-style display)
+  const byReaction = {};
+  Object.entries(ideaReactions).forEach(([name, r]) => {
+    byReaction[r] = byReaction[r] || [];
+    byReaction[r].push(name);
+  });
+
   return (
-    <button onClick={onClick} style={{
-      fontFamily: "Georgia, serif", fontSize: 11, padding: "6px 12px",
-      borderRadius: 7, cursor: "pointer", fontWeight: 600,
-      border: "1px solid #e5e7eb", background: "#f9fafb", color: "#374151",
-      ...style,
-    }}>
-      {children}
-    </button>
+    <div>
+      <p style={{ fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: T.textMuted, margin: "0 0 8px", fontWeight: 600 }}>
+        Reactions
+      </p>
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+        {REACTIONS.map(r => {
+          const c = T.reactions[r];
+          const active = myReaction === r;
+          const count = counts[r] || 0;
+          const names = byReaction[r] || [];
+          return (
+            <button
+              key={r}
+              onClick={() => onReact(ideaId, active ? null : r)}
+              title={`${REACTION_LABELS[r]}${names.length ? ` · ${names.join(", ")}` : ""}`}
+              style={{
+                ...btn(),
+                display: "flex", alignItems: "center", gap: 5,
+                background: active ? c.bg : T.surface,
+                border: `1px solid ${active ? c.border : T.border}`,
+                color: active ? c.text : T.textMuted,
+                padding: "5px 10px",
+                fontWeight: active ? 600 : 400,
+                transition: "all 0.15s",
+              }}
+            >
+              <span style={{ fontSize: 15 }}>{r}</span>
+              {count > 0 && (
+                <span style={{ fontSize: 11, fontWeight: 600 }}>{count}</span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+      {Object.keys(byReaction).length > 0 && (
+        <div style={{ marginTop: 8, display: "flex", flexWrap: "wrap", gap: 6 }}>
+          {Object.entries(byReaction).map(([r, names]) => (
+            <span key={r} style={{ fontSize: 11, color: T.textMuted }}>
+              {r} {names.join(", ")}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
-export default function IdeaCard({
-  idea, isOpen, onToggle,
-  onDone, userName, likes, onLike,
-  onArchive, isSuggestion, onAddSuggestion,
-}) {
-  const myLike = (likes[idea.id] || []).includes(userName);
-  const likers = likes[idea.id] || [];
+export default function IdeaCard({ idea, isOpen, onToggle, onDone, userName, reactions, onReact, onArchive, isSuggestion, onAddSuggestion }) {
+  const ideaReactions = reactions[idea.id] || {};
+  const reactionCounts = {};
+  Object.values(ideaReactions).forEach(r => { reactionCounts[r] = (reactionCounts[r] || 0) + 1; });
+  const topReactions = Object.entries(reactionCounts).sort((a, b) => b[1] - a[1]).slice(0, 3);
 
   return (
     <div style={{
-      background: isSuggestion ? "#f0f9ff" : idea.done ? "#f9fafb" : "#fff",
-      border: `1.5px solid ${isOpen ? "#7c3aed" : isSuggestion ? "#bae6fd" : "#e5e7eb"}`,
-      borderRadius: 14, overflow: "hidden",
-      opacity: idea.done ? 0.65 : 1,
-      boxShadow: isOpen ? "0 4px 18px rgba(124,58,237,0.1)" : "0 1px 3px rgba(0,0,0,0.05)",
+      background: isSuggestion ? "#f0f6ff" : idea.done ? T.surfaceAlt : T.surface,
+      border: `1px solid ${isOpen ? T.accent : isSuggestion ? T.accentMid : T.border}`,
+      borderRadius: T.radiusLg,
+      overflow: "hidden",
+      opacity: idea.done ? 0.6 : 1,
+      boxShadow: isOpen ? `0 2px 16px rgba(45,58,140,0.08)` : "0 1px 3px rgba(0,0,0,0.04)",
+      transition: "border-color 0.15s, box-shadow 0.15s",
     }}>
       {isSuggestion && (
-        <div style={{ background: "#e0f2fe", padding: "3px 14px", fontSize: 10, color: "#0369a1", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>
-          ✨ AI Suggestion
+        <div style={{ background: T.accentLight, padding: "3px 16px", fontSize: 10, color: T.accent, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase" }}>
+          AI Suggestion
         </div>
       )}
 
-      {/* Header row */}
-      <button onClick={onToggle} style={{
-        width: "100%", display: "flex", alignItems: "center", gap: 12,
-        padding: "16px 18px", background: "transparent", border: "none",
-        cursor: "pointer", textAlign: "left", fontFamily: "Georgia, serif",
-      }}>
-        <span style={{ fontSize: 24, flexShrink: 0 }}>{idea.emoji}</span>
+      {/* Header */}
+      <button onClick={onToggle} style={{ width: "100%", display: "flex", alignItems: "center", gap: 14, padding: "16px 18px", background: "transparent", border: "none", cursor: "pointer", textAlign: "left", fontFamily: T.fontFamily }}>
+        <span style={{ fontSize: 22, flexShrink: 0, lineHeight: 1 }}>{idea.emoji}</span>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 15, fontWeight: 600, color: idea.done ? "#9ca3af" : "#111827" }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: idea.done ? T.textMuted : T.text, letterSpacing: "-0.01em" }}>
             {idea.done ? <s>{idea.title}</s> : idea.title}
           </div>
-          <div style={{ fontSize: 11, color: "#9ca3af", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          <div style={{ fontSize: 11, color: T.textMuted, marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
             {idea.when}
           </div>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
-          {likers.length > 0 && (
-            <span style={{ fontSize: 11, color: "#ec4899", fontWeight: 700 }}>❤️{likers.length}</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+          {topReactions.length > 0 && (
+            <span style={{ fontSize: 12, color: T.textMuted, letterSpacing: "0.05em" }}>
+              {topReactions.map(([r, c]) => `${r}${c > 1 ? c : ""}`).join(" ")}
+            </span>
           )}
-          <span style={{ background: "#fef9c3", color: "#a16207", fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 20, border: "1px solid #fef08a", whiteSpace: "nowrap" }}>
+          <span style={{ background: T.warningBg, color: T.warning, fontSize: 10, fontWeight: 600, padding: "2px 8px", borderRadius: 20, border: `1px solid ${T.warningBorder}`, whiteSpace: "nowrap", letterSpacing: "0.02em" }}>
             {idea.costBadge}
           </span>
-          <span style={{ color: "#7c3aed", fontSize: 13 }}>{isOpen ? "▲" : "▼"}</span>
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke={T.accent} strokeWidth="1.5" strokeLinecap="round" style={{ transform: isOpen ? "rotate(180deg)" : "none", transition: "transform 0.15s", flexShrink: 0 }}>
+            <polyline points="2,4 6,8 10,4"/>
+          </svg>
         </div>
       </button>
 
-      {/* Expanded body */}
+      {/* Body */}
       {isOpen && (
-        <div style={{ padding: "0 18px 18px", borderTop: "1px solid #f3f4f6" }}>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 5, paddingTop: 12, marginBottom: 12 }}>
-            {idea.tags.map((t) => <TagPill key={t} tag={t} />)}
+        <div style={{ padding: "0 18px 20px", borderTop: `1px solid ${T.border}` }}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 5, paddingTop: 14, marginBottom: 14 }}>
+            {idea.tags.map(t => <TagPill key={t} tag={t} />)}
           </div>
 
-          <p style={{ fontSize: 13, lineHeight: 1.7, color: "#374151", margin: "0 0 12px" }}>
-            {idea.description}
-          </p>
+          <p style={{ fontSize: 13, lineHeight: 1.75, color: T.textMid, margin: "0 0 14px" }}>{idea.description}</p>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 12 }}>
-            <InfoBlock label="📍 Where" value={idea.location} />
-            <InfoBlock label="🕖 When" value={idea.when} />
-            <InfoBlock label="💸 Cost" value={idea.cost} span={2} />
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 14 }}>
+            <InfoBlock label="Where" value={idea.location} />
+            <InfoBlock label="When" value={idea.when} />
+            <InfoBlock label="Cost" value={idea.cost} span={2} />
           </div>
 
-          <div style={{ background: "#faf5ff", border: "1px solid #e9d5ff", borderRadius: 8, padding: "10px 12px", marginBottom: 12 }}>
-            <p style={{ fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "#7c3aed", margin: "0 0 6px", fontWeight: 700 }}>
-              Good to Know
-            </p>
+          <div style={{ background: T.bg, border: `1px solid ${T.border}`, borderRadius: T.radiusMd, padding: "12px 14px", marginBottom: 14 }}>
+            <p style={{ fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: T.accent, margin: "0 0 8px", fontWeight: 600 }}>Good to Know</p>
             <ul style={{ margin: 0, padding: "0 0 0 14px" }}>
-              {idea.notes.map((n, i) => (
-                <li key={i} style={{ fontSize: 12, color: "#4b5563", lineHeight: 1.6, marginBottom: 3 }}>{n}</li>
-              ))}
+              {idea.notes.map((n, i) => <li key={i} style={{ fontSize: 12, color: T.textMid, lineHeight: 1.7, marginBottom: 3 }}>{n}</li>)}
             </ul>
           </div>
 
-          {likers.length > 0 && (
-            <p style={{ fontSize: 11, color: "#9ca3af", marginBottom: 10 }}>
-              ❤️ Liked by: {likers.join(", ")}
-            </p>
-          )}
+          <div style={{ marginBottom: 16 }}>
+            <ReactionBar ideaId={idea.id} userName={userName} reactions={reactions} onReact={onReact} />
+          </div>
 
           <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
-            <a href={idea.link} target="_blank" rel="noreferrer" style={{ fontFamily: "Georgia, serif", fontSize: 11, padding: "6px 12px", borderRadius: 7, background: "#f5f3ff", color: "#7c3aed", border: "1px solid #ddd6fe", textDecoration: "none", fontWeight: 600 }}>
+            <a href={idea.link} target="_blank" rel="noreferrer" style={{ ...btn(), background: T.accentLight, color: T.accent, border: `1px solid ${T.accentMid}`, textDecoration: "none" }}>
               View Website ↗
             </a>
-            <a href={mapsUrl(idea)} target="_blank" rel="noreferrer" style={{ fontFamily: "Georgia, serif", fontSize: 11, padding: "6px 12px", borderRadius: 7, background: "#f0fdf4", color: "#16a34a", border: "1px solid #bbf7d0", textDecoration: "none", fontWeight: 600 }}>
-              📍 Map
+            <a href={mapsUrl(idea)} target="_blank" rel="noreferrer" style={{ ...btn(), background: T.successBg, color: T.success, border: `1px solid ${T.successBorder}`, textDecoration: "none" }}>
+              Open in Maps
             </a>
-            <Btn onClick={() => makeICS(idea)} style={{ background: "#eff6ff", color: "#2563eb", border: "1px solid #bfdbfe" }}>
-              📅 Add to Calendar
-            </Btn>
-            <Btn
-              onClick={() => onLike(idea.id)}
-              style={myLike ? { background: "#fdf2f8", color: "#ec4899", border: "1px solid #fbcfe8" } : {}}
-            >
-              {myLike ? "❤️ Liked!" : "🤍 Like"}
-            </Btn>
+            <button onClick={() => makeICS(idea)} style={{ ...btn(), background: T.accentLight, color: T.accent, border: `1px solid ${T.accentMid}` }}>
+              Add to Calendar
+            </button>
             {isSuggestion ? (
-              <Btn onClick={() => onAddSuggestion(idea)} style={{ background: "#f0f9ff", color: "#0369a1", border: "1px solid #bae6fd" }}>
-                ➕ Add to List
-              </Btn>
+              <button onClick={() => onAddSuggestion(idea)} style={{ ...btn(), background: T.accentLight, color: T.accent, border: `1px solid ${T.accentMid}` }}>
+                + Add to List
+              </button>
             ) : (
               <>
-                <Btn
-                  onClick={() => onDone(idea.id)}
-                  style={idea.done ? { background: "#f0fdf4", color: "#16a34a", border: "1px solid #bbf7d0" } : {}}
-                >
-                  {idea.done ? "✓ Done!" : "Mark as Done"}
-                </Btn>
+                <button onClick={() => onDone(idea.id)} style={{ ...btn(), background: idea.done ? T.successBg : T.surface, color: idea.done ? T.success : T.textMid, border: `1px solid ${idea.done ? T.successBorder : T.border}` }}>
+                  {idea.done ? "✓ Done" : "Mark as Done"}
+                </button>
                 {idea.eventDate && (
-                  <Btn onClick={() => onArchive(idea.id)} style={{ color: "#9ca3af" }}>
+                  <button onClick={() => onArchive(idea.id)} style={{ ...btn(), color: T.textMuted }}>
                     Archive
-                  </Btn>
+                  </button>
                 )}
               </>
             )}

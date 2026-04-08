@@ -208,9 +208,9 @@ export const TAG_COLORS = {
 
 // Storage keys — bump suffix to reset all persisted state
 export const KEYS = {
-  DONE:    "date-ideas-done-v3",
-  ARCHIVE: "date-ideas-archive-v3",
-  LIKES:   "date-ideas-likes-v3",
-  USER:    "date-ideas-user-v3",
-  EXTRA:   "date-ideas-extra-v3",
+  DONE:      "ldi-done-v1",
+  ARCHIVE:   "ldi-archive-v1",
+  REACTIONS: "ldi-reactions-v1",   // { [ideaId]: { [userName]: "🔥"|"👍"|"🤔"|"👎" } }
+  USER:      "ldi-user-v1",
+  EXTRA:     "ldi-extra-v1",
 };

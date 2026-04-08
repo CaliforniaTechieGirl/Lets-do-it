@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { DEFAULT_IDEAS, KEYS } from "./data.js";
+import { T, ICONS } from "./theme.js";
 import { storageGet, storageSet } from "./storage.js";
 import IdeaCard from "./components/IdeaCard.jsx";
 import CalendarView from "./components/CalendarView.jsx";
@@ -9,56 +10,49 @@ import ArchiveView from "./components/ArchiveView.jsx";
 import AddByUrl from "./components/AddByUrl.jsx";
 
 const TABS = [
-  { id: "list",        label: "📋 List" },
-  { id: "calendar",   label: "📅 Calendar" },
-  { id: "map",        label: "📍 Map" },
-  { id: "suggestions",label: "✨ Suggest" },
-  { id: "archive",    label: "🗄 Archive" },
-  { id: "add",        label: "➕ Add Idea" },
+  { id: "list",        label: "List",     icon: ICONS.list },
+  { id: "calendar",   label: "Calendar", icon: ICONS.calendar },
+  { id: "map",        label: "Map",      icon: ICONS.map },
+  { id: "suggestions",label: "Suggest",  icon: ICONS.suggest },
+  { id: "add",        label: "Add Idea", icon: ICONS.add },
+  { id: "archive",    label: "Archive",  icon: ICONS.archive },
 ];
 
 export default function App() {
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState("list");
   const [expanded, setExpanded] = useState(null);
-  const [saveStatus, setSaveStatus] = useState(null); // "saving" | "saved" | "error"
+  const [saveStatus, setSaveStatus] = useState(null);
 
-  // Persisted state
   const [userName, setUserName] = useState("");
   const [nameInput, setNameInput] = useState("");
   const [doneIds, setDoneIds] = useState(new Set());
   const [archivedIds, setArchivedIds] = useState(new Set());
-  const [likes, setLikes] = useState({});       // { [ideaId]: string[] }
-  const [extraIdeas, setExtraIdeas] = useState([]); // ideas added from suggestions
-
-  // Transient state
+  const [reactions, setReactions] = useState({});   // { [ideaId]: { [userName]: emoji } }
+  const [extraIdeas, setExtraIdeas] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
 
-  // ── Load ────────────────────────────────────────────────────────────────────
   useEffect(() => {
     async function load() {
       try {
-        const [done, arch, lks, user, extra] = await Promise.allSettled([
+        const [done, arch, reacts, user, extra] = await Promise.allSettled([
           storageGet(KEYS.DONE),
           storageGet(KEYS.ARCHIVE),
-          storageGet(KEYS.LIKES, true),   // shared
+          storageGet(KEYS.REACTIONS, true),
           storageGet(KEYS.USER),
           storageGet(KEYS.EXTRA),
         ]);
-        if (done.value?.value)  setDoneIds(new Set(JSON.parse(done.value.value)));
-        if (arch.value?.value)  setArchivedIds(new Set(JSON.parse(arch.value.value)));
-        if (lks.value?.value)   setLikes(JSON.parse(lks.value.value));
-        if (user.value?.value)  setUserName(user.value.value);
-        if (extra.value?.value) setExtraIdeas(JSON.parse(extra.value.value));
-      } catch (e) {
-        console.warn("Storage load error:", e);
-      }
+        if (done.value?.value)   setDoneIds(new Set(JSON.parse(done.value.value)));
+        if (arch.value?.value)   setArchivedIds(new Set(JSON.parse(arch.value.value)));
+        if (reacts.value?.value) setReactions(JSON.parse(reacts.value.value));
+        if (user.value?.value)   setUserName(user.value.value);
+        if (extra.value?.value)  setExtraIdeas(JSON.parse(extra.value.value));
+      } catch (e) { console.warn("Storage load error:", e); }
       setLoading(false);
     }
     load();
   }, []);
 
-  // ── Save helper ─────────────────────────────────────────────────────────────
   const save = async (key, value, shared = false) => {
     setSaveStatus("saving");
     try {
@@ -71,7 +65,6 @@ export default function App() {
     }
   };
 
-  // ── Actions ─────────────────────────────────────────────────────────────────
   const confirmName = async () => {
     const name = nameInput.trim();
     if (!name) return;
@@ -86,37 +79,40 @@ export default function App() {
     save(KEYS.DONE, [...next]);
   };
 
-  const toggleLike = async (id) => {
+  const setReaction = async (ideaId, emoji) => {
     if (!userName) return;
-    const current = likes[id] || [];
-    const next = current.includes(userName)
-      ? current.filter((n) => n !== userName)
-      : [...current, userName];
-    const nextLikes = { ...likes, [id]: next };
-    setLikes(nextLikes);
-    save(KEYS.LIKES, nextLikes, true); // shared across users
+    const ideaReactions = { ...(reactions[ideaId] || {}) };
+    if (emoji === null) delete ideaReactions[userName];
+    else ideaReactions[userName] = emoji;
+    const next = { ...reactions, [ideaId]: ideaReactions };
+    setReactions(next);
+    save(KEYS.REACTIONS, next, true);
   };
 
   const archiveIdea = async (id) => {
-    const next = new Set(archivedIds);
-    next.add(id);
-    setArchivedIds(next);
-    save(KEYS.ARCHIVE, [...next]);
+    const next = new Set(archivedIds); next.add(id);
+    setArchivedIds(next); save(KEYS.ARCHIVE, [...next]);
   };
-
   const unarchiveIdea = async (id) => {
-    const next = new Set(archivedIds);
-    next.delete(id);
-    setArchivedIds(next);
-    save(KEYS.ARCHIVE, [...next]);
+    const next = new Set(archivedIds); next.delete(id);
+    setArchivedIds(next); save(KEYS.ARCHIVE, [...next]);
   };
 
   const addSuggestion = async (idea) => {
     const added = { ...idea, id: Date.now(), isSuggestion: false };
     const next = [...extraIdeas, added];
     setExtraIdeas(next);
-    setSuggestions((prev) => prev.filter((s) => s.id !== idea.id));
+    setSuggestions(prev => prev.filter(s => s.id !== idea.id));
     save(KEYS.EXTRA, next);
+  };
+
+  const addByUrl = (idea) => {
+    const added = { ...idea, id: Date.now() };
+    const next = [...extraIdeas, added];
+    setExtraIdeas(next);
+    save(KEYS.EXTRA, next);
+    setTab("list");
+    setExpanded(added.id);
   };
 
   const handleSelectIdea = (idea) => {
@@ -124,49 +120,30 @@ export default function App() {
     setTab("list");
   };
 
-  // ── Derived ─────────────────────────────────────────────────────────────────
   const allIdeas = [...DEFAULT_IDEAS, ...extraIdeas];
-  const activeIdeas = allIdeas.filter((i) => !archivedIds.has(i.id));
-  const archivedIdeas = allIdeas.filter((i) => archivedIds.has(i.id));
-  const doneCount = activeIdeas.filter((i) => doneIds.has(i.id)).length;
+  const activeIdeas = allIdeas.filter(i => !archivedIds.has(i.id));
+  const archivedIdeas = allIdeas.filter(i => archivedIds.has(i.id));
+  const doneCount = activeIdeas.filter(i => doneIds.has(i.id)).length;
   const archiveCount = archivedIds.size;
 
-  // ── Name gate ───────────────────────────────────────────────────────────────
+  // ── Name gate ────────────────────────────────────────────────────────────────
   if (!loading && !userName) {
     return (
-      <div style={{
-        minHeight: "100vh", background: "#fff",
-        fontFamily: "Georgia, serif",
-        display: "flex", alignItems: "center", justifyContent: "center", padding: 20,
-      }}>
-        <div style={{ maxWidth: 360, textAlign: "center" }}>
-          <div style={{ fontSize: 52, marginBottom: 16 }}>✨</div>
-          <h2 style={{ fontSize: 26, fontWeight: 400, color: "#111827", marginBottom: 8 }}>Date Ideas</h2>
-          <p style={{ color: "#6b7280", fontSize: 14, marginBottom: 24, lineHeight: 1.6 }}>
-            Enter your name so friends can see who liked what.
-          </p>
+      <div style={{ minHeight: "100vh", background: T.bg, fontFamily: T.fontFamily, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+        <div style={{ maxWidth: 360, width: "100%", textAlign: "center" }}>
+          <h1 style={{ fontSize: 28, fontWeight: 600, color: T.text, letterSpacing: "-0.02em", margin: "0 0 6px" }}>Let's Do It</h1>
+          <p style={{ fontSize: 14, color: T.textMid, marginBottom: 28, lineHeight: 1.6, fontStyle: "italic" }}>A collaborative list of fun things to do</p>
+          <p style={{ fontSize: 13, color: T.textMid, marginBottom: 14 }}>Enter your name so collaborators can see who reacted to what.</p>
           <input
             value={nameInput}
-            onChange={(e) => setNameInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && confirmName()}
+            onChange={e => setNameInput(e.target.value)}
+            onKeyDown={e => e.key === "Enter" && confirmName()}
             placeholder="Your first name…"
             autoFocus
-            style={{
-              width: "100%", padding: "10px 14px", fontSize: 15,
-              border: "1.5px solid #e5e7eb", borderRadius: 10,
-              fontFamily: "Georgia, serif", marginBottom: 12, outline: "none",
-            }}
+            style={{ width: "100%", padding: "11px 14px", fontSize: 14, border: `1.5px solid ${T.border}`, borderRadius: T.radiusMd, fontFamily: T.fontFamily, marginBottom: 10, outline: "none", background: T.surface, color: T.text }}
           />
-          <button
-            onClick={confirmName}
-            style={{
-              width: "100%", padding: "11px 0", background: "#7c3aed",
-              color: "#fff", border: "none", borderRadius: 10,
-              fontSize: 15, fontWeight: 600, cursor: "pointer",
-              fontFamily: "Georgia, serif",
-            }}
-          >
-            Let's go →
+          <button onClick={confirmName} style={{ width: "100%", padding: "11px 0", background: T.accent, color: "#fff", border: "none", borderRadius: T.radiusMd, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: T.fontFamily, letterSpacing: "0.01em" }}>
+            Let's go
           </button>
         </div>
       </div>
@@ -174,52 +151,39 @@ export default function App() {
   }
 
   if (loading) {
-    return (
-      <div style={{ fontFamily: "Georgia, serif", padding: 40, textAlign: "center", color: "#9ca3af" }}>
-        Loading…
-      </div>
-    );
+    return <div style={{ fontFamily: T.fontFamily, padding: 40, textAlign: "center", color: T.textMuted }}>Loading…</div>;
   }
 
-  // ── Render ───────────────────────────────────────────────────────────────────
+  // ── Main render ───────────────────────────────────────────────────────────────
   return (
-    <div style={{ minHeight: "100vh", background: "#fff", fontFamily: "Georgia, serif", color: "#1a1a2e" }}>
+    <div style={{ minHeight: "100vh", background: T.bg, fontFamily: T.fontFamily, color: T.text }}>
 
       {/* Header */}
-      <div style={{ textAlign: "center", padding: "30px 20px 16px" }}>
-        <h1 style={{ fontSize: "clamp(1.9rem, 5vw, 2.8rem)", fontWeight: 400, margin: 0, color: "#111827", letterSpacing: "-0.02em" }}>
-          Let's Do It 🎉
+      <div style={{ textAlign: "center", padding: "32px 20px 18px", borderBottom: `1px solid ${T.border}`, background: T.surface }}>
+        <h1 style={{ fontSize: "clamp(1.7rem, 4vw, 2.4rem)", fontWeight: 600, margin: 0, color: T.text, letterSpacing: "-0.03em" }}>
+          Let's Do It
         </h1>
-        <p style={{ marginTop: 6, color: "#6b7280", fontSize: 14, fontStyle: "italic" }}>
+        <p style={{ marginTop: 5, color: T.textMid, fontSize: 14, fontStyle: "italic", fontWeight: 400 }}>
           A collaborative list of fun things to do
         </p>
-        <p style={{ marginTop: 4, color: "#9ca3af", fontSize: 12 }}>
-          {doneCount} of {activeIdeas.length} done · hi, {userName}!
+        <p style={{ marginTop: 5, color: T.textMuted, fontSize: 12 }}>
+          {doneCount} of {activeIdeas.length} done · Hi, {userName}!
         </p>
         {saveStatus && (
-          <p style={{ marginTop: 4, fontSize: 11, color: saveStatus === "error" ? "#dc2626" : "#16a34a" }}>
-            {saveStatus === "saving" ? "💾 Saving…" : saveStatus === "saved" ? "✓ Saved" : "⚠ Couldn't save"}
+          <p style={{ marginTop: 4, fontSize: 11, color: saveStatus === "error" ? T.danger : T.success }}>
+            {saveStatus === "saving" ? "Saving…" : saveStatus === "saved" ? "Saved" : "Couldn't save"}
           </p>
         )}
       </div>
 
       {/* Tabs */}
-      <div style={{ display: "flex", overflowX: "auto", borderBottom: "1px solid #f3f4f6", padding: "0 12px" }}>
-        {TABS.map((t) => {
-          const label = t.id === "archive" && archiveCount > 0 ? `🗄 Archive (${archiveCount})` : t.label;
+      <div style={{ display: "flex", overflowX: "auto", background: T.surface, borderBottom: `1px solid ${T.border}`, padding: "0 8px" }}>
+        {TABS.map(t => {
+          const label = t.id === "archive" && archiveCount > 0 ? `Archive (${archiveCount})` : t.label;
+          const active = tab === t.id;
           return (
-            <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
-              style={{
-                fontFamily: "Georgia, serif", padding: "9px 14px",
-                background: "none", border: "none",
-                borderBottom: `2px solid ${tab === t.id ? "#7c3aed" : "transparent"}`,
-                color: tab === t.id ? "#7c3aed" : "#6b7280",
-                fontWeight: tab === t.id ? 700 : 400,
-                cursor: "pointer", fontSize: 13, whiteSpace: "nowrap",
-              }}
-            >
+            <button key={t.id} onClick={() => setTab(t.id)} style={{ fontFamily: T.fontFamily, display: "flex", alignItems: "center", gap: 6, padding: "12px 14px", background: "none", border: "none", borderBottom: `2px solid ${active ? T.accent : "transparent"}`, color: active ? T.accent : T.textMuted, fontWeight: active ? 600 : 400, cursor: "pointer", fontSize: 13, whiteSpace: "nowrap", letterSpacing: "0.01em", transition: "all 0.15s" }}>
+              <span dangerouslySetInnerHTML={{ __html: t.icon }} style={{ display: "flex", alignItems: "center", opacity: active ? 1 : 0.6 }} />
               {label}
             </button>
           );
@@ -227,11 +191,11 @@ export default function App() {
       </div>
 
       {/* Content */}
-      <div style={{ maxWidth: 700, margin: "0 auto", padding: "20px 16px 48px" }}>
+      <div style={{ maxWidth: 720, margin: "0 auto", padding: "20px 16px 56px" }}>
 
         {tab === "list" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            {activeIdeas.map((idea) => (
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {activeIdeas.map(idea => (
               <IdeaCard
                 key={idea.id}
                 idea={{ ...idea, done: doneIds.has(idea.id) }}
@@ -239,55 +203,28 @@ export default function App() {
                 onToggle={() => setExpanded(expanded === idea.id ? null : idea.id)}
                 onDone={toggleDone}
                 userName={userName}
-                likes={likes}
-                onLike={toggleLike}
+                reactions={reactions}
+                onReact={setReaction}
                 onArchive={archiveIdea}
                 isSuggestion={false}
                 onAddSuggestion={() => {}}
               />
             ))}
-            <div style={{ textAlign: "center", padding: 20, border: "1px dashed #d1d5db", borderRadius: 16, color: "#9ca3af", fontSize: 13, fontStyle: "italic", marginTop: 4 }}>
-              Got something fun in mind? Hit ➕ Add Idea above ✨
+            <div style={{ textAlign: "center", padding: 20, border: `1px dashed ${T.borderMid}`, borderRadius: T.radiusLg, color: T.textMuted, fontSize: 13, marginTop: 4 }}>
+              Got something fun in mind? Use Add Idea above.
             </div>
           </div>
         )}
 
-        {tab === "calendar" && (
-          <CalendarView ideas={activeIdeas} onSelect={handleSelectIdea} />
-        )}
-
-        {tab === "map" && (
-          <MapView ideas={activeIdeas} onSelect={handleSelectIdea} />
-        )}
+        {tab === "calendar" && <CalendarView ideas={activeIdeas} onSelect={handleSelectIdea} />}
+        {tab === "map" && <MapView ideas={activeIdeas} onSelect={handleSelectIdea} />}
 
         {tab === "suggestions" && (
-          <SuggestionsPanel
-            ideas={activeIdeas}
-            suggestions={suggestions}
-            setSuggestions={setSuggestions}
-            onAdd={addSuggestion}
-            userName={userName}
-            likes={likes}
-            onLike={toggleLike}
-          />
+          <SuggestionsPanel ideas={activeIdeas} suggestions={suggestions} setSuggestions={setSuggestions} onAdd={addSuggestion} userName={userName} reactions={reactions} onReact={setReaction} />
         )}
 
-        {tab === "archive" && (
-          <ArchiveView ideas={archivedIdeas} onUnarchive={unarchiveIdea} />
-        )}
-
-        {tab === "add" && (
-          <AddByUrl
-            onAdd={(idea) => {
-              const added = { ...idea, id: Date.now() };
-              const next = [...extraIdeas, added];
-              setExtraIdeas(next);
-              save(KEYS.EXTRA, next);
-              setTab("list");
-              setExpanded(added.id);
-            }}
-          />
-        )}
+        {tab === "add" && <AddByUrl onAdd={addByUrl} />}
+        {tab === "archive" && <ArchiveView ideas={archivedIdeas} onUnarchive={unarchiveIdea} />}
 
       </div>
     </div>
