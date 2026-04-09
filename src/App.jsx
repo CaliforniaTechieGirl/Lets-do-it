@@ -31,6 +31,7 @@ export default function App() {
   const [reactions, setReactions] = useState({});   // { [ideaId]: { [userName]: emoji } }
   const [extraIdeas, setExtraIdeas] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
+  const [sortBy, setSortBy] = useState("default"); // "default" | "loved" | "recent"
 
   useEffect(() => {
     async function load() {
@@ -195,21 +196,55 @@ export default function App() {
 
         {tab === "list" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {activeIdeas.map(idea => (
-              <IdeaCard
-                key={idea.id}
-                idea={{ ...idea, done: doneIds.has(idea.id) }}
-                isOpen={expanded === idea.id}
-                onToggle={() => setExpanded(expanded === idea.id ? null : idea.id)}
-                onDone={toggleDone}
-                userName={userName}
-                reactions={reactions}
-                onReact={setReaction}
-                onArchive={archiveIdea}
-                isSuggestion={false}
-                onAddSuggestion={() => {}}
-              />
-            ))}
+
+            {/* Sort toolbar */}
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
+              <label style={{ fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: T.textMuted, fontWeight: 600, whiteSpace: "nowrap" }}>
+                Sort by
+              </label>
+              <select
+                value={sortBy}
+                onChange={e => setSortBy(e.target.value)}
+                style={{ fontFamily: T.fontFamily, fontSize: 13, padding: "6px 10px", border: `1px solid ${T.border}`, borderRadius: T.radius, background: T.surface, color: T.text, cursor: "pointer", outline: "none" }}
+              >
+                <option value="default">Default</option>
+                <option value="loved">Most loved 🔥</option>
+                <option value="recent">Recently added</option>
+              </select>
+            </div>
+
+            {/* Sorted list */}
+            {(() => {
+              const REACTION_WEIGHT = { "🔥": 4, "👍": 2, "🤔": 1, "👎": -1 };
+
+              const score = (idea) => {
+                const ideaReactions = reactions[idea.id] || {};
+                return Object.values(ideaReactions).reduce((sum, r) => sum + (REACTION_WEIGHT[r] || 0), 0);
+              };
+
+              const sorted = [...activeIdeas].sort((a, b) => {
+                if (sortBy === "loved")  return score(b) - score(a);
+                if (sortBy === "recent") return b.id - a.id;
+                return 0; // default — preserve original order
+              });
+
+              return sorted.map(idea => (
+                <IdeaCard
+                  key={idea.id}
+                  idea={{ ...idea, done: doneIds.has(idea.id) }}
+                  isOpen={expanded === idea.id}
+                  onToggle={() => setExpanded(expanded === idea.id ? null : idea.id)}
+                  onDone={toggleDone}
+                  userName={userName}
+                  reactions={reactions}
+                  onReact={setReaction}
+                  onArchive={archiveIdea}
+                  isSuggestion={false}
+                  onAddSuggestion={() => {}}
+                />
+              ));
+            })()}
+
             <div style={{ textAlign: "center", padding: 20, border: `1px dashed ${T.borderMid}`, borderRadius: T.radiusLg, color: T.textMuted, fontSize: 13, marginTop: 4 }}>
               Got something fun in mind? Use Add Idea above.
             </div>
