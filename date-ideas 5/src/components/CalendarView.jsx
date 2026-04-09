@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { T } from "../theme.js";
+import { T, getIdeaIcon } from "../theme.js";
 
 const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
@@ -56,7 +56,7 @@ export default function CalendarView({ ideas, onSelect }) {
                 <div style={{ fontSize: 10, fontWeight: isToday(day) ? 600 : 400, color: isToday(day) ? T.accent : T.textMuted, textAlign: "center", marginBottom: 2 }}>{day}</div>
                 {(byDay[day] || []).map(idea => (
                   <button key={idea.id} onClick={() => onSelect(idea)} style={{ display: "block", width: "100%", textAlign: "left", fontSize: 9, padding: "2px 3px", borderRadius: 3, background: T.accentLight, color: T.accent, border: "none", cursor: "pointer", marginBottom: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: 600, fontFamily: T.fontFamily }}>
-                    {idea.emoji} {idea.title}
+                    {idea.title}
                   </button>
                 ))}
               </>
@@ -71,7 +71,7 @@ export default function CalendarView({ ideas, onSelect }) {
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             {undated.map(idea => (
               <button key={idea.id} onClick={() => onSelect(idea)} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", background: T.surface, border: `1px solid ${T.border}`, borderRadius: T.radiusMd, cursor: "pointer", textAlign: "left", fontFamily: T.fontFamily }}>
-                <span style={{ fontSize: 18 }}>{idea.emoji}</span>
+                <span dangerouslySetInnerHTML={{ __html: getIdeaIcon(idea.tags) }} style={{ width: 22, height: 22, flexShrink: 0, color: T.accent, display: "flex", alignItems: "center", justifyContent: "center" }} />
                 <div>
                   <div style={{ fontSize: 13, fontWeight: 500, color: T.text }}>{idea.title}</div>
                   <div style={{ fontSize: 11, color: T.textMuted, marginTop: 1 }}>{idea.when}</div>
