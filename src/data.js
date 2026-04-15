@@ -15,6 +15,7 @@ export const DEFAULT_IDEAS = [
     ],
     tags: ["Outdoor","Free","Science","Nighttime"],
     link: "https://chabotspace.org/programs/free-telescope-viewings/",
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Chabot_SSC_entrance.jpg/330px-Chabot_SSC_entrance.jpg",
   },
   {
     id: 2, title: "Stanford Live at Bing Concert Hall", emoji: "🎻",
@@ -32,6 +33,7 @@ export const DEFAULT_IDEAS = [
     ],
     tags: ["Music","Indoor","Classical"],
     link: "https://live.stanford.edu/",
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Bing_concert_hall_at_Stanford_University.JPG/250px-Bing_concert_hall_at_Stanford_University.JPG",
   },
   {
     id: 3, title: "Sea Kayaking at Pillar Point Harbor", emoji: "🚣",
@@ -49,6 +51,7 @@ export const DEFAULT_IDEAS = [
     ],
     tags: ["Outdoor","Adventure","Water","Active"],
     link: "https://www.hmbkayak.com/",
+    image: "https://www.hmbkayak.com/wp2015/wp-content/uploads/2015/07/singles-1.jpg",
   },
   {
     id: 4, title: "Monte Bello Open Space Preserve Hike", emoji: "🥾",
@@ -66,6 +69,7 @@ export const DEFAULT_IDEAS = [
     ],
     tags: ["Outdoor","Free","Active","Hiking"],
     link: "https://www.openspace.org/preserves/monte-bello",
+    image: "https://upload.wikimedia.org/wikipedia/commons/d/d8/Monte_Bello_Open_Space_Preserve.jpg",
   },
   {
     id: 5, title: "Exploratorium After Dark (Adults Only)", emoji: "🔬",
@@ -100,6 +104,7 @@ export const DEFAULT_IDEAS = [
     ],
     tags: ["Outdoor","Free","Science","Art"],
     link: "https://www.exploratorium.edu/visit/wave-organ",
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/San_Francisco_Wave_Organ.jpg/500px-San_Francisco_Wave_Organ.jpg",
   },
   {
     id: 7, title: "Danish String Quartet & Danish National Girls' Choir", emoji: "🎼",
@@ -118,6 +123,7 @@ export const DEFAULT_IDEAS = [
     ],
     tags: ["Music","Indoor","Classical","Splurge"],
     link: "https://live.stanford.edu/events/25-26season/bing-concert-hall/danish-string-quartet-and-danish-national-girls-choir/",
+    image: "https://res.cloudinary.com/dopulypdj/image/upload/c_fill,g_auto,h_720,w_1280/f_auto/q_auto/v1746137016/Screenshot_2025-05-01_at_2.46.42_PM",
   },
   {
     id: 8, title: "Palo Alto Philharmonic — Dvořák Cello Concerto", emoji: "🎻",
@@ -135,6 +141,7 @@ export const DEFAULT_IDEAS = [
     ],
     tags: ["Music","Indoor","Classical"],
     link: "https://www.paphil.org/performances",
+    image: "https://images.squarespace-cdn.com/content/v1/595317af44024324fd3ca48d/1540354285047-KPT0E3R2GECXCJSI130F/Palo+Alto+Philharmonic+Anniversary-08.png",
   },
   {
     id: 9, title: "Händel Dixit Dominus — All Saints Episcopal Church", emoji: "🎼",
@@ -169,6 +176,7 @@ export const DEFAULT_IDEAS = [
     ],
     tags: ["Active","Indoor","Adventure"],
     link: "https://siliconvalleycurling.com/ltc/",
+    image: "https://siliconvalleycurling.com/wp-content/uploads/2023/02/Learn-to-Curl-Hero-Image-Slide-Sweep-Play-e1774814894290.png",
   },
   {
     id: 11, title: "Echoes of Andalusia — Adam del Monte, Solo Guitar", emoji: "🎸",
@@ -186,6 +194,7 @@ export const DEFAULT_IDEAS = [
     ],
     tags: ["Music","Indoor","Classical"],
     link: "https://concertsinamerica.com/andalusia/",
+    image: "https://images.squarespace-cdn.com/content/v1/65e8ca740c7a791c1f2f6bba/76bd8025-eec4-4df7-8334-96734bf289d3/2.jpg",
   },
 ];
 

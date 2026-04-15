@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { T, TAG_COLORS, btn, getIdeaIcon } from "../theme.js";
 import { makeICS, mapsUrl } from "../utils.js";
 
@@ -64,13 +65,25 @@ function ReactionBar({ ideaId, userName, reactions, onReact }) {
 }
 
 export default function IdeaCard({ idea, isOpen, onToggle, onDone, userName, reactions, onReact, onArchive, isSuggestion, onAddSuggestion }) {
+  const cardRef = useRef(null);
   const ideaReactions = reactions[idea.id] || {};
+
+  useEffect(() => {
+    if (isOpen && cardRef.current) {
+      setTimeout(() => {
+        const el = cardRef.current;
+        if (!el) return;
+        const top = el.getBoundingClientRect().top + window.scrollY - 80;
+        window.scrollTo({ top, behavior: "smooth" });
+      }, 50);
+    }
+  }, [isOpen]);
   const reactionCounts = {};
   Object.values(ideaReactions).forEach(r => { reactionCounts[r] = (reactionCounts[r] || 0) + 1; });
   const topReactions = Object.entries(reactionCounts).sort((a, b) => b[1] - a[1]).slice(0, 3);
 
   return (
-    <div style={{
+    <div ref={cardRef} style={{
       background: idea.done ? T.surfaceLow : T.surface,
       borderRadius: T.radiusLg,
       overflow: "hidden",
@@ -118,6 +131,12 @@ export default function IdeaCard({ idea, isOpen, onToggle, onDone, userName, rea
       {/* Expanded body */}
       {isOpen && (
         <div style={{ padding: "4px 18px 20px" }}>
+          {/* Hero image */}
+          {idea.image && (
+            <div style={{ margin: "0 -18px 14px", height: 180, overflow: "hidden" }}>
+              <img src={idea.image} alt={idea.title} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+            </div>
+          )}
           {/* Tags */}
           <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 14 }}>
             {idea.tags.map(t => <TagPill key={t} tag={t} />)}
