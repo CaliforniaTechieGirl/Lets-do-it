@@ -29,7 +29,7 @@ export default function CalendarView({ ideas, onSelect }) {
   const isToday = d => d === now.getDate() && mo === now.getMonth() && yr === now.getFullYear();
 
   const navBtn = (onClick, label) => (
-    <button onClick={onClick} style={{ fontFamily: T.fontFamily, width: 32, height: 32, borderRadius: T.radius, border: `1px solid ${T.border}`, background: T.surface, cursor: "pointer", color: T.textMid, fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center" }}>
+    <button onClick={onClick} style={{ fontFamily: T.fontFamily, width: 32, height: 32, borderRadius: T.radius, border: `1px solid ${T.surfaceMid}`, background: T.surface, cursor: "pointer", color: T.textMid, fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center" }}>
       {label}
     </button>
   );
@@ -49,20 +49,28 @@ export default function CalendarView({ ideas, onSelect }) {
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 2 }}>
-        {cells.map((day, i) => (
-          <div key={i} style={{ minHeight: 58, background: day ? (isToday(day) ? T.accentLight : T.bg) : "transparent", border: day ? `1px solid ${isToday(day) ? T.accentMid : T.border}` : "none", borderRadius: T.radius, padding: "3px 2px" }}>
-            {day && (
-              <>
-                <div style={{ fontSize: 10, fontWeight: isToday(day) ? 600 : 400, color: isToday(day) ? T.accent : T.textMuted, textAlign: "center", marginBottom: 2 }}>{day}</div>
-                {(byDay[day] || []).map(idea => (
-                  <button key={idea.id} onClick={() => onSelect(idea)} style={{ display: "block", width: "100%", textAlign: "left", fontSize: 9, padding: "2px 3px", borderRadius: 3, background: T.accentLight, color: T.accent, border: "none", cursor: "pointer", marginBottom: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: 600, fontFamily: T.fontFamily }}>
-                    {idea.title}
-                  </button>
-                ))}
-              </>
-            )}
-          </div>
-        ))}
+        {cells.map((day, i) => {
+          const dayIdeas = byDay[day] || [];
+          const visible = dayIdeas.slice(0, 2);
+          const extra = dayIdeas.length - visible.length;
+          return (
+            <div key={i} style={{ minHeight: 58, minWidth: 0, overflow: "hidden", background: day ? (isToday(day) ? T.primaryContainer : T.surface) : "transparent", border: day ? `1px solid ${isToday(day) ? T.primaryMid : T.surfaceMid}` : "none", borderRadius: T.radius, padding: "3px 2px" }}>
+              {day && (
+                <>
+                  <div style={{ fontSize: 10, fontWeight: isToday(day) ? 600 : 400, color: isToday(day) ? T.primary : T.textMuted, textAlign: "center", marginBottom: 2 }}>{day}</div>
+                  {visible.map(idea => (
+                    <button key={idea.id} onClick={() => onSelect(idea)} style={{ display: "block", width: "100%", textAlign: "left", fontSize: 9, padding: "2px 3px", borderRadius: 3, background: T.primaryLight, color: T.primary, border: "none", cursor: "pointer", marginBottom: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: 600, fontFamily: T.fontFamily }}>
+                      {idea.title}
+                    </button>
+                  ))}
+                  {extra > 0 && (
+                    <div style={{ fontSize: 9, color: T.textMuted, textAlign: "center", fontWeight: 500 }}>+{extra} more</div>
+                  )}
+                </>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {undated.length > 0 && (
@@ -70,8 +78,8 @@ export default function CalendarView({ ideas, onSelect }) {
           <p style={{ fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: T.textMuted, fontWeight: 600, margin: "24px 0 10px" }}>Anytime</p>
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             {undated.map(idea => (
-              <button key={idea.id} onClick={() => onSelect(idea)} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", background: T.surface, border: `1px solid ${T.border}`, borderRadius: T.radiusMd, cursor: "pointer", textAlign: "left", fontFamily: T.fontFamily }}>
-                <span dangerouslySetInnerHTML={{ __html: getIdeaIcon(idea.tags) }} style={{ width: 22, height: 22, flexShrink: 0, color: T.accent, display: "flex", alignItems: "center", justifyContent: "center" }} />
+              <button key={idea.id} onClick={() => onSelect(idea)} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", background: T.surface, border: `1px solid ${T.surfaceMid}`, borderRadius: T.radiusMd, cursor: "pointer", textAlign: "left", fontFamily: T.fontFamily }}>
+                <span dangerouslySetInnerHTML={{ __html: getIdeaIcon(idea.tags) }} style={{ width: 22, height: 22, flexShrink: 0, color: T.primary, display: "flex", alignItems: "center", justifyContent: "center" }} />
                 <div>
                   <div style={{ fontSize: 13, fontWeight: 500, color: T.text }}>{idea.title}</div>
                   <div style={{ fontSize: 11, color: T.textMuted, marginTop: 1 }}>{idea.when}</div>

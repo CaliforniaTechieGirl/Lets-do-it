@@ -25,7 +25,7 @@ export default function AddByUrl({ onAdd }) {
 
   const update = (field, value) => setDraft(prev => ({ ...prev, [field]: value }));
 
-  const inputStyle = { width: "100%", padding: "9px 12px", fontSize: 13, border: `1px solid ${T.border}`, borderRadius: T.radius, fontFamily: T.fontFamily, outline: "none", background: T.surface, color: T.text, lineHeight: 1.5 };
+  const inputStyle = { width: "100%", padding: "9px 12px", fontSize: 13, border: `1px solid ${T.surfaceMid}`, borderRadius: T.radius, fontFamily: T.fontFamily, outline: "none", background: T.surface, color: T.text, lineHeight: 1.5 };
   const labelStyle = { display: "block", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: T.textMuted, fontWeight: 600, marginBottom: 4 };
 
   return (
@@ -39,7 +39,7 @@ export default function AddByUrl({ onAdd }) {
         <div>
           <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
             <input type="url" value={url} onChange={e => setUrl(e.target.value)} onKeyDown={e => e.key === "Enter" && parse()} placeholder="https://…" disabled={loading} style={{ ...inputStyle, flex: 1 }} />
-            <button onClick={parse} disabled={loading || !url.trim()} style={{ ...btn(), background: loading || !url.trim() ? T.accentMid : T.accent, color: "#fff", border: "none", padding: "9px 20px", opacity: !url.trim() ? 0.6 : 1, whiteSpace: "nowrap", fontWeight: 600 }}>
+            <button onClick={parse} disabled={loading || !url.trim()} style={{ ...btn(), background: loading || !url.trim() ? T.primaryMid : T.primary, color: "#fff", border: "none", padding: "9px 20px", opacity: !url.trim() ? 0.6 : 1, whiteSpace: "nowrap", fontWeight: 600 }}>
               {loading ? "Reading…" : "Parse URL"}
             </button>
           </div>
@@ -82,10 +82,10 @@ export default function AddByUrl({ onAdd }) {
               <label style={labelStyle}>Tags</label>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 2 }}>
                 {ALL_TAGS.map(tag => {
-                  const c = TAG_COLORS[tag] || { bg: T.surfaceAlt, text: T.textMid, border: T.border };
+                  const c = TAG_COLORS[tag] || { bg: T.surfaceAlt, text: T.textMid, border: T.surfaceMid };
                   const on = (draft.tags||[]).includes(tag);
                   return (
-                    <button key={tag} onClick={() => update("tags", on ? (draft.tags||[]).filter(t=>t!==tag) : [...(draft.tags||[]),tag])} style={{ ...btn(), fontSize: 10, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", background: on ? c.bg : T.surface, color: on ? c.text : T.textMuted, border: `1px solid ${on ? c.border : T.border}`, padding: "3px 9px", borderRadius: 20 }}>
+                    <button key={tag} onClick={() => update("tags", on ? (draft.tags||[]).filter(t=>t!==tag) : [...(draft.tags||[]),tag])} style={{ ...btn(), fontSize: 10, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", background: on ? c.bg : T.surface, color: on ? c.text : T.textMuted, border: `1px solid ${on ? c.border : T.surfaceMid}`, padding: "3px 9px", borderRadius: 20 }}>
                       {tag}
                     </button>
                   );
@@ -96,7 +96,7 @@ export default function AddByUrl({ onAdd }) {
           </div>
 
           <div style={{ display: "flex", gap: 8 }}>
-            <button onClick={() => { if(draft.title) onAdd(draft); }} disabled={!draft.title} style={{ ...btn(), background: T.accent, color: "#fff", border: "none", padding: "10px 24px", fontWeight: 600, opacity: !draft.title ? 0.6 : 1 }}>
+            <button onClick={() => { if(draft.title) onAdd(draft); }} disabled={!draft.title} style={{ ...btn(), background: T.primary, color: "#fff", border: "none", padding: "10px 24px", fontWeight: 600, opacity: !draft.title ? 0.6 : 1 }}>
               Add to List
             </button>
             <button onClick={() => { setDraft(null); setUrl(""); setError(null); }} style={{ ...btn(), padding: "10px 18px" }}>

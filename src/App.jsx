@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { DEFAULT_IDEAS, KEYS } from "./data.js";
-import { T, ICONS } from "./theme.js";
+import { T, ICONS, btn } from "./theme.js";
 import { storageGet, storageSet } from "./storage.js";
 import IdeaCard from "./components/IdeaCard.jsx";
 import CalendarView from "./components/CalendarView.jsx";
@@ -132,18 +132,18 @@ export default function App() {
     return (
       <div style={{ minHeight: "100vh", background: T.bg, fontFamily: T.fontFamily, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
         <div style={{ maxWidth: 360, width: "100%", textAlign: "center" }}>
-          <h1 style={{ fontSize: 28, fontWeight: 600, color: T.text, letterSpacing: "-0.02em", margin: "0 0 6px" }}>Let's Do It</h1>
-          <p style={{ fontSize: 14, color: T.textMid, marginBottom: 28, lineHeight: 1.6, fontStyle: "italic" }}>A collaborative list of fun things to do</p>
-          <p style={{ fontSize: 13, color: T.textMid, marginBottom: 14 }}>Enter your name so collaborators can see who reacted to what.</p>
+          <h1 style={{ fontSize: 32, fontWeight: 800, color: T.primary, letterSpacing: "-0.03em", textTransform: "uppercase", margin: "0 0 8px" }}>LET'S DO IT</h1>
+          <p style={{ fontSize: 14, color: T.textMid, marginBottom: 32, lineHeight: 1.6 }}>A collaborative list of fun things to do</p>
+          <p style={{ fontSize: 13, color: T.textMid, marginBottom: 14, textAlign: "left" }}>Enter your name so collaborators can see who reacted to what.</p>
           <input
             value={nameInput}
             onChange={e => setNameInput(e.target.value)}
             onKeyDown={e => e.key === "Enter" && confirmName()}
             placeholder="Your first name…"
             autoFocus
-            style={{ width: "100%", padding: "11px 14px", fontSize: 14, border: `1.5px solid ${T.border}`, borderRadius: T.radiusMd, fontFamily: T.fontFamily, marginBottom: 10, outline: "none", background: T.surface, color: T.text }}
+            style={{ width: "100%", padding: "12px 16px", fontSize: 14, border: "none", borderRadius: T.radius, fontFamily: T.fontFamily, marginBottom: 12, outline: "none", background: T.surfaceHighest, color: T.text, borderBottom: `2px solid ${T.outlineVariant}` }}
           />
-          <button onClick={confirmName} style={{ width: "100%", padding: "11px 0", background: T.accent, color: "#fff", border: "none", borderRadius: T.radiusMd, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: T.fontFamily, letterSpacing: "0.01em" }}>
+          <button onClick={confirmName} style={{ ...btn("primary"), width: "100%", padding: "12px 0", fontSize: 14, borderRadius: T.radiusFull }}>
             Let's go
           </button>
         </div>
@@ -160,52 +160,83 @@ export default function App() {
     <div style={{ minHeight: "100vh", background: T.bg, fontFamily: T.fontFamily, color: T.text }}>
 
       {/* Header */}
-      <div style={{ textAlign: "center", padding: "32px 20px 18px", borderBottom: `1px solid ${T.border}`, background: T.surface }}>
-        <h1 style={{ fontSize: "clamp(1.7rem, 4vw, 2.4rem)", fontWeight: 600, margin: 0, color: T.text, letterSpacing: "-0.03em" }}>
-          Let's Do It
-        </h1>
-        <p style={{ marginTop: 5, color: T.textMid, fontSize: 14, fontStyle: "italic", fontWeight: 400 }}>
-          A collaborative list of fun things to do
-        </p>
-        <p style={{ marginTop: 5, color: T.textMuted, fontSize: 12 }}>
-          {doneCount} of {activeIdeas.length} done · Hi, {userName}!
-        </p>
-        {saveStatus && (
-          <p style={{ marginTop: 4, fontSize: 11, color: saveStatus === "error" ? T.danger : T.success }}>
-            {saveStatus === "saving" ? "Saving…" : saveStatus === "saved" ? "Saved" : "Couldn't save"}
+      <div style={{ background: T.bg, padding: "28px 20px 8px" }}>
+        <div style={{ maxWidth: 720, margin: "0 auto" }}>
+          <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: T.tertiary, margin: "0 0 4px" }}>
+            Collaborative Planning
           </p>
-        )}
+          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+            <h1 style={{ fontSize: "clamp(1.8rem, 5vw, 2.6rem)", fontWeight: 800, margin: 0, color: T.primary, letterSpacing: "-0.03em", textTransform: "uppercase", lineHeight: 1 }}>
+              Let's Do It
+            </h1>
+            <p style={{ color: T.textMuted, fontSize: 12, margin: 0, fontWeight: 500 }}>
+              Hi, {userName} · {doneCount}/{activeIdeas.length} done
+            </p>
+          </div>
+          <p style={{ marginTop: 6, color: T.textMid, fontSize: 13, fontWeight: 400 }}>
+            A collaborative list of fun things to do
+          </p>
+          {saveStatus && (
+            <p style={{ marginTop: 4, fontSize: 11, color: saveStatus === "error" ? T.danger : T.tertiary, fontWeight: 500 }}>
+              {saveStatus === "saving" ? "Saving…" : saveStatus === "saved" ? "Saved" : "Couldn't save"}
+            </p>
+          )}
+        </div>
       </div>
 
-      {/* Tabs */}
-      <div style={{ display: "flex", overflowX: "auto", background: T.surface, borderBottom: `1px solid ${T.border}`, padding: "0 8px" }}>
-        {TABS.map(t => {
-          const label = t.id === "archive" && archiveCount > 0 ? `Archive (${archiveCount})` : t.label;
-          const active = tab === t.id;
-          return (
-            <button key={t.id} onClick={() => setTab(t.id)} style={{ fontFamily: T.fontFamily, display: "flex", alignItems: "center", gap: 6, padding: "12px 14px", background: "none", border: "none", borderBottom: `2px solid ${active ? T.accent : "transparent"}`, color: active ? T.accent : T.textMuted, fontWeight: active ? 600 : 400, cursor: "pointer", fontSize: 13, whiteSpace: "nowrap", letterSpacing: "0.01em", transition: "all 0.15s" }}>
-              <span dangerouslySetInnerHTML={{ __html: t.icon }} style={{ display: "flex", alignItems: "center", opacity: active ? 1 : 0.6 }} />
-              {label}
-            </button>
-          );
-        })}
+      {/* Tabs — pill-style active state */}
+      <div style={{ background: T.bg, padding: "10px 12px 0", position: "sticky", top: 0, zIndex: 10 }}>
+        <div style={{ maxWidth: 720, margin: "0 auto" }}>
+          <div style={{ display: "flex", overflowX: "auto", gap: 6, paddingBottom: 12, scrollbarWidth: "none" }}>
+            {TABS.map(t => {
+              const label = t.id === "archive" && archiveCount > 0 ? `Archive (${archiveCount})` : t.label;
+              const active = tab === t.id;
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => setTab(t.id)}
+                  style={{
+                    fontFamily: T.fontFamily,
+                    display: "flex", alignItems: "center", gap: 5,
+                    padding: "7px 14px",
+                    background: active ? T.primary : T.surface,
+                    borderRadius: T.radiusFull,
+                    border: "none",
+                    color: active ? T.onPrimary : T.textMuted,
+                    fontWeight: active ? 700 : 500,
+                    cursor: "pointer",
+                    fontSize: 12,
+                    whiteSpace: "nowrap",
+                    letterSpacing: "0.02em",
+                    boxShadow: active ? T.shadowCard : "none",
+                    transition: "all 0.15s",
+                    flexShrink: 0,
+                  }}
+                >
+                  <span dangerouslySetInnerHTML={{ __html: t.icon }} style={{ display: "flex", alignItems: "center" }} />
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
       {/* Content */}
-      <div style={{ maxWidth: 720, margin: "0 auto", padding: "20px 16px 56px" }}>
+      <div style={{ maxWidth: 720, margin: "0 auto", padding: "16px 16px 56px" }}>
 
         {tab === "list" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
 
             {/* Sort toolbar */}
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
-              <label style={{ fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: T.textMuted, fontWeight: 600, whiteSpace: "nowrap" }}>
+              <label style={{ fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: T.textMuted, fontWeight: 700, whiteSpace: "nowrap" }}>
                 Sort by
               </label>
               <select
                 value={sortBy}
                 onChange={e => setSortBy(e.target.value)}
-                style={{ fontFamily: T.fontFamily, fontSize: 13, padding: "6px 10px", border: `1px solid ${T.border}`, borderRadius: T.radius, background: T.surface, color: T.text, cursor: "pointer", outline: "none" }}
+                style={{ fontFamily: T.fontFamily, fontSize: 12, padding: "6px 12px", border: "none", borderRadius: T.radiusFull, background: T.surface, color: T.textMid, cursor: "pointer", outline: "none", fontWeight: 500, boxShadow: T.shadowCard }}
               >
                 <option value="default">Default</option>
                 <option value="loved">Most loved 🔥</option>
