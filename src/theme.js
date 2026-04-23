@@ -1,89 +1,87 @@
 /**
  * Design tokens — Precision Editorial
- * Primary #3459d4 · Secondary #a92876 · Tertiary #458a9a · Neutral #e8e8e8 · Surface #ffffff
+ * Primary #0e3ebb · Secondary #a92876 · Tertiary #015461 · Neutral #e8e8e8 · Surface #ffffff
  */
 
 export const T = {
-  // Typography
   fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
 
-  // Surface hierarchy (tonal layering — no borders for separation)
-  bg:               "#f0f0f0",   // page background (one step below surface)
-  surface:          "#ffffff",   // cards / highest elevation
-  surfaceLow:       "#f4f4f4",   // subtle grouping / section backgrounds
-  surfaceMid:       "#e8e8e8",   // neutral / utility / recessed areas
-  surfaceHighest:   "#e2e2e2",   // input field background
+  // Surface hierarchy — tonal layering, no borders
+  bg:             "#f0f0f0",
+  surface:        "#ffffff",
+  surfaceLow:     "#f4f4f4",
+  surfaceMid:     "#e8e8e8",
+  surfaceHighest: "#e2e2e2",
 
-  // Brand colors
-  primary:          "#3459d4",   // reliable blue — primary actions, branding
-  primaryContainer: "#dce1ff",   // light blue tint — focus states, highlights
-  primaryDim:       "#b7c4ff",   // dimmed primary for decorative use
+  // Brand
+  primary:          "#0e3ebb",
+  primaryContainer: "#dce1ff",
+  primaryDim:       "#b7c4ff",
   onPrimary:        "#ffffff",
 
-  secondary:        "#a92876",   // vibrant magenta — energy, accents, badges
-  secondaryContainer: "#ffd8e7", // light pink tint
-  onSecondary:      "#ffffff",
+  secondary:          "#a92876",
+  secondaryContainer: "#ffd8e7",
+  onSecondary:        "#ffffff",
 
-  tertiary:         "#458a9a",   // professional teal — calm utility, info states
-  tertiaryContainer:"#a9edff",   // light teal tint
-  onTertiary:       "#ffffff",
+  tertiary:          "#015461",
+  tertiaryContainer: "#a9edff",
+  onTertiary:        "#ffffff",
 
   // Text
-  text:             "#1a1c1c",   // on_surface — never pure black
-  textMid:          "#444654",   // on_surface_variant
-  textMuted:        "#747685",   // outline — placeholder / tertiary text
+  text:      "#1a1c1c",
+  textMid:   "#444654",
+  textMuted: "#747685",
 
-  // Borders (ghost only — used sparingly, at low opacity)
-  outlineVariant:   "#c4c5d6",   // ghost border at 20% opacity for inputs
+  // Ghost border (inputs only)
+  outlineVariant: "#c4c5d6",
 
   // Semantic
-  success:          "#1a6b3c",
-  successBg:        "#edfaf3",
-  successBorder:    "#b3e6cc",
-  warning:          "#7a4f00",
-  warningBg:        "#fef9ec",
-  warningBorder:    "#f0d89a",
-  danger:           "#ba1a1a",
-  dangerBg:         "#ffdad6",
-  dangerBorder:     "#f0b3b3",
+  success:       "#1a6b3c",
+  successBg:     "#edfaf3",
+  successBorder: "#b3e6cc",
+  warning:       "#7a4f00",
+  warningBg:     "#fef9ec",
+  warningBorder: "#f0d89a",
+  danger:        "#ba1a1a",
+  dangerBg:      "#ffdad6",
+  dangerBorder:  "#f0b3b3",
 
   // Radius
-  radius:           "8px",
-  radiusMd:         "12px",
-  radiusLg:         "16px",
-  radiusFull:       "9999px",
+  radius:     "8px",
+  radiusMd:   "12px",
+  radiusLg:   "16px",
+  radiusFull: "9999px",
 
-  // Ambient shadow (never heavy)
-  shadowCard:       "0 4px 40px -4px rgba(26,28,28,0.07)",
-  shadowFloat:      "0 8px 64px -4px rgba(26,28,28,0.08)",
+  // Shadows
+  shadowCard:  "0 2px 24px -2px rgba(26,28,28,0.07)",
+  shadowFloat: "0 8px 48px -4px rgba(26,28,28,0.12)",
 
   // Reactions
   reactions: {
-    "🔥": { bg: "#fff4ed", text: "#c2410c", border: "transparent" },
-    "👍": { bg: "#dce1ff", text: "#3459d4", border: "transparent" },
-    "🤔": { bg: "#fef9ec", text: "#7a4f00", border: "transparent" },
-    "👎": { bg: "#e8e8e8", text: "#747685", border: "transparent" },
+    "🔥": { bg: "#fff4ed", text: "#c2410c" },
+    "👍": { bg: "#dce1ff", text: "#0e3ebb" },
+    "🤔": { bg: "#fef9ec", text: "#7a4f00" },
+    "👎": { bg: "#e8e8e8", text: "#747685" },
   },
 };
 
 export const TAG_COLORS = {
-  Outdoor:   { bg: "#edfaf3", text: "#1a6b3c" },
+  Outdoor:   { bg: "#edfaf3", text: "#015461" },
   Free:      { bg: "#fef9ec", text: "#7a4f00" },
-  Science:   { bg: "#dce1ff", text: "#3459d4" },
+  Science:   { bg: "#dce1ff", text: "#0e3ebb" },
   Nighttime: { bg: "#f3e8ff", text: "#5b21b6" },
   Indoor:    { bg: "#e8e8e8", text: "#444654" },
   Music:     { bg: "#ffd8e7", text: "#a92876" },
-  Adventure: { bg: "#a9edff", text: "#458a9a" },
-  Classical: { bg: "#dce1ff", text: "#3459d4" },
-  Water:     { bg: "#a9edff", text: "#458a9a" },
+  Adventure: { bg: "#a9edff", text: "#015461" },
+  Classical: { bg: "#dce1ff", text: "#0e3ebb" },
+  Water:     { bg: "#a9edff", text: "#015461" },
   Active:    { bg: "#fff4ed", text: "#c2410c" },
-  Hiking:    { bg: "#edfaf3", text: "#1a6b3c" },
+  Hiking:    { bg: "#edfaf3", text: "#015461" },
   Art:       { bg: "#ffd8e7", text: "#a92876" },
   Splurge:   { bg: "#ffd8e7", text: "#a92876" },
-  Suggestion:{ bg: "#dce1ff", text: "#3459d4" },
+  Suggestion:{ bg: "#dce1ff", text: "#0e3ebb" },
 };
 
-// SVG tab icons
 export const ICONS = {
   list:     `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="4" y1="4" x2="12" y2="4"/><line x1="4" y1="8" x2="12" y2="8"/><line x1="4" y1="12" x2="9" y2="12"/></svg>`,
   calendar: `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="2" y="3" width="12" height="11" rx="2"/><line x1="2" y1="7" x2="14" y2="7"/><line x1="5" y1="1" x2="5" y2="5"/><line x1="11" y1="1" x2="11" y2="5"/></svg>`,
@@ -93,7 +91,6 @@ export const ICONS = {
   archive:  `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="1" y="3" width="14" height="3" rx="1"/><path d="M2 6v7a1 1 0 001 1h10a1 1 0 001-1V6"/><path d="M6 9h4"/></svg>`,
 };
 
-// Category icons
 export const CATEGORY_ICONS = {
   Music:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`,
   Classical:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`,
@@ -113,29 +110,16 @@ export const CATEGORY_ICONS = {
 
 export function getIdeaIcon(tags = []) {
   const priority = ["Music","Classical","Science","Water","Hiking","Outdoor","Active","Adventure","Art","Nighttime","Indoor","Free","Splurge"];
-  for (const p of priority) {
-    if (tags.includes(p)) return CATEGORY_ICONS[p];
-  }
+  for (const p of priority) { if (tags.includes(p)) return CATEGORY_ICONS[p]; }
   return CATEGORY_ICONS.default;
 }
 
-// Shared button styles
 export function btn(variant = "default") {
-  const base = {
-    fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
-    fontSize: 12,
-    fontWeight: 600,
-    padding: "7px 16px",
-    borderRadius: "9999px",
-    border: "none",
-    cursor: "pointer",
-    letterSpacing: "0.01em",
-    transition: "opacity 0.15s",
-  };
-  if (variant === "primary")   return { ...base, background: T.primary,   color: T.onPrimary };
-  if (variant === "secondary") return { ...base, background: T.secondary, color: T.onSecondary };
-  if (variant === "tertiary")  return { ...base, background: T.tertiaryContainer, color: T.tertiary };
-  if (variant === "ghost")     return { ...base, background: "transparent", color: T.primary, fontWeight: 600 };
-  if (variant === "muted")     return { ...base, background: T.surfaceMid, color: T.textMid };
-  return { ...base, background: T.surfaceMid, color: T.textMid };
+  const base = { fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif", fontSize: 12, fontWeight: 600, padding: "7px 16px", borderRadius: "9999px", border: "none", cursor: "pointer", letterSpacing: "0.01em", transition: "opacity 0.15s" };
+  if (variant === "primary")   return { ...base, background: "#0e3ebb", color: "#ffffff" };
+  if (variant === "secondary") return { ...base, background: "#a92876", color: "#ffffff" };
+  if (variant === "tertiary")  return { ...base, background: "#a9edff", color: "#015461" };
+  if (variant === "ghost")     return { ...base, background: "transparent", color: "#0e3ebb", fontWeight: 600 };
+  if (variant === "muted")     return { ...base, background: "#e8e8e8", color: "#444654" };
+  return { ...base, background: "#e8e8e8", color: "#444654" };
 }

@@ -93,6 +93,17 @@ export default function AddByUrl({ onAdd }) {
               </div>
             </div>
             <div><label style={labelStyle}>Website link</label><input type="url" value={draft.link||""} onChange={e=>update("link",e.target.value)} placeholder="https://…" style={inputStyle}/></div>
+            <div>
+              <label style={labelStyle}>Image URL (auto-detected from page, or paste your own)</label>
+              <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+                <input type="url" value={draft.image||""} onChange={e=>update("image",e.target.value)} placeholder="https://…" style={{...inputStyle, flex: 1}}/>
+                {draft.image && (
+                  <div style={{ width: 64, height: 64, borderRadius: T.radius, overflow: "hidden", flexShrink: 0, background: T.surfaceMid }}>
+                    <img src={draft.image} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} onError={e => e.target.style.display="none"} />
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
 
           <div style={{ display: "flex", gap: 8 }}>

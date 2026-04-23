@@ -1,6 +1,6 @@
 export const DEFAULT_IDEAS = [
   {
-    id: 1, title: "Free Telescope Viewings", emoji: "🔭",
+    id: 1, image: "https://chabotspace.org/wp-content/uploads/2021/11/4976875871_efedfe3812_o-2-1.jpg", title: "Free Telescope Viewings", emoji: "🔭",
     location: "Chabot Space & Science Center, 10000 Skyline Blvd, Oakland, CA 94619",
     lat: 37.8197, lng: -122.1791,
     when: "Every Friday & Saturday, 7:30–10:30 PM (year-round)",
@@ -15,10 +15,9 @@ export const DEFAULT_IDEAS = [
     ],
     tags: ["Outdoor","Free","Science","Nighttime"],
     link: "https://chabotspace.org/programs/free-telescope-viewings/",
-    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Chabot_SSC_entrance.jpg/330px-Chabot_SSC_entrance.jpg",
   },
   {
-    id: 2, title: "Stanford Live at Bing Concert Hall", emoji: "🎻",
+    id: 2, image: "https://res.cloudinary.com/dopulypdj/image/upload/f_auto/q_auto/v1776278367/2425-Frost-SFS-Brandon-Patoc_0129?_a=BAAARODQ", title: "Stanford Live at Bing Concert Hall", emoji: "🎻",
     location: "Bing Concert Hall, 327 Lasuen St, Stanford, CA",
     lat: 37.4269, lng: -122.1670,
     when: "Frequent Friday & Saturday evenings — check live.stanford.edu",
@@ -33,10 +32,9 @@ export const DEFAULT_IDEAS = [
     ],
     tags: ["Music","Indoor","Classical"],
     link: "https://live.stanford.edu/",
-    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Bing_concert_hall_at_Stanford_University.JPG/250px-Bing_concert_hall_at_Stanford_University.JPG",
   },
   {
-    id: 3, title: "Sea Kayaking at Pillar Point Harbor", emoji: "🚣",
+    id: 3, image: "https://www.hmbkayak.com/wp2015/wp-content/uploads/2015/07/double-kayak-rental.jpg", title: "Sea Kayaking at Pillar Point Harbor", emoji: "🚣",
     location: "Half Moon Bay Kayak Co., 2 Johnson Pier, Half Moon Bay, CA",
     lat: 37.4957, lng: -122.4956,
     when: "Daily 10am–4pm. Best on calm mornings.",
@@ -51,10 +49,9 @@ export const DEFAULT_IDEAS = [
     ],
     tags: ["Outdoor","Adventure","Water","Active"],
     link: "https://www.hmbkayak.com/",
-    image: "https://www.hmbkayak.com/wp2015/wp-content/uploads/2015/07/singles-1.jpg",
   },
   {
-    id: 4, title: "Monte Bello Open Space Preserve Hike", emoji: "🥾",
+    id: 4, image: "https://www.openspace.org/sites/default/files/styles/16x9_1600w/public/2021-06/MB_Ridge_Chad%20Frost_%2016X9_0.jpg", title: "Monte Bello Open Space Preserve Hike", emoji: "🥾",
     location: "4185 Page Mill Rd, Palo Alto, CA",
     lat: 37.3186, lng: -122.1544,
     when: "Any day, sunrise to sunset.",
@@ -69,10 +66,9 @@ export const DEFAULT_IDEAS = [
     ],
     tags: ["Outdoor","Free","Active","Hiking"],
     link: "https://www.openspace.org/preserves/monte-bello",
-    image: "https://upload.wikimedia.org/wikipedia/commons/d/d8/Monte_Bello_Open_Space_Preserve.jpg",
   },
   {
-    id: 5, title: "Exploratorium After Dark (Adults Only)", emoji: "🔬",
+    id: 5, image: null, title: "Exploratorium After Dark (Adults Only)", emoji: "🔬",
     location: "Pier 15, The Embarcadero, San Francisco, CA",
     lat: 37.8017, lng: -122.3973,
     when: "Every Thursday evening, 6–10 PM.",
@@ -89,7 +85,7 @@ export const DEFAULT_IDEAS = [
     link: "https://www.exploratorium.edu/visit/calendar/after-dark",
   },
   {
-    id: 6, title: "The Wave Organ + Marina Waterfront Walk", emoji: "🌊",
+    id: 6, image: null, title: "The Wave Organ + Marina Waterfront Walk", emoji: "🌊",
     location: "1 Yacht Rd, San Francisco, CA (end of the Marina jetty)",
     lat: 37.8063, lng: -122.4370,
     when: "Always open. Best at high tide.",
@@ -104,10 +100,9 @@ export const DEFAULT_IDEAS = [
     ],
     tags: ["Outdoor","Free","Science","Art"],
     link: "https://www.exploratorium.edu/visit/wave-organ",
-    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/San_Francisco_Wave_Organ.jpg/500px-San_Francisco_Wave_Organ.jpg",
   },
   {
-    id: 7, title: "Danish String Quartet & Danish National Girls' Choir", emoji: "🎼",
+    id: 7, image: "https://res.cloudinary.com/dopulypdj/image/upload/f_auto/q_auto/v1746135848/PK_DSQ_In_wildness3_credit_Caroline_Bittencourt?_a=BAAARODQ", title: "Danish String Quartet & Danish National Girls' Choir", emoji: "🎼",
     location: "Bing Concert Hall, 327 Lasuen St, Stanford, CA",
     lat: 37.4269, lng: -122.1670,
     when: "Wednesday, April 15, 2026 at 7:30 PM. Pre-concert talk at 6:45 PM.",
@@ -123,10 +118,9 @@ export const DEFAULT_IDEAS = [
     ],
     tags: ["Music","Indoor","Classical","Splurge"],
     link: "https://live.stanford.edu/events/25-26season/bing-concert-hall/danish-string-quartet-and-danish-national-girls-choir/",
-    image: "https://res.cloudinary.com/dopulypdj/image/upload/c_fill,g_auto,h_720,w_1280/f_auto/q_auto/v1746137016/Screenshot_2025-05-01_at_2.46.42_PM",
   },
   {
-    id: 8, title: "Palo Alto Philharmonic — Dvořák Cello Concerto", emoji: "🎻",
+    id: 8, image: "https://images.squarespace-cdn.com/content/v1/595317af44024324fd3ca48d/5d3dab84-5110-4dda-b59b-eb63da01c839/DSC_8646_ret_medium.jpg", title: "Palo Alto Philharmonic — Dvořák Cello Concerto", emoji: "🎻",
     location: "Cubberley Theatre, 4120 Middlefield Rd, Palo Alto, CA",
     lat: 37.4088, lng: -122.1100,
     when: "Saturday, April 11, 2026 at 7:30 PM",
@@ -141,10 +135,9 @@ export const DEFAULT_IDEAS = [
     ],
     tags: ["Music","Indoor","Classical"],
     link: "https://www.paphil.org/performances",
-    image: "https://images.squarespace-cdn.com/content/v1/595317af44024324fd3ca48d/1540354285047-KPT0E3R2GECXCJSI130F/Palo+Alto+Philharmonic+Anniversary-08.png",
   },
   {
-    id: 9, title: "Händel Dixit Dominus — All Saints Episcopal Church", emoji: "🎼",
+    id: 9, image: "https://static.wixstatic.com/media/e20b04_0605e67eb706411cbdc02a9bbe453ba5~mv2.jpg/v1/fit/w_2500,h_1330,al_c/e20b04_0605e67eb706411cbdc02a9bbe453ba5~mv2.jpg", title: "Händel Dixit Dominus — All Saints Episcopal Church", emoji: "🎼",
     location: "All Saints Episcopal Church, 555 Waverley St, Palo Alto, CA",
     lat: 37.4456, lng: -122.1596,
     when: "Sunday, April 5, 2026 at 7:00 PM",
@@ -161,7 +154,7 @@ export const DEFAULT_IDEAS = [
     link: "https://www.asaints.org/",
   },
   {
-    id: 10, title: "Learn to Curl — Silicon Valley Curling Club", emoji: "🥌",
+    id: 10, image: null, title: "Learn to Curl — Silicon Valley Curling Club", emoji: "🥌",
     location: "Sharks Ice at San Jose, 1500 S 10th St, San Jose, CA",
     lat: 37.3229, lng: -121.8683,
     when: "Sessions throughout the year — check siliconvalleycurling.com/ltc/ for upcoming dates.",
@@ -176,10 +169,9 @@ export const DEFAULT_IDEAS = [
     ],
     tags: ["Active","Indoor","Adventure"],
     link: "https://siliconvalleycurling.com/ltc/",
-    image: "https://siliconvalleycurling.com/wp-content/uploads/2023/02/Learn-to-Curl-Hero-Image-Slide-Sweep-Play-e1774814894290.png",
   },
   {
-    id: 11, title: "Echoes of Andalusia — Adam del Monte, Solo Guitar", emoji: "🎸",
+    id: 11, image: "https://concertsinamerica.com/wp-content/uploads/2026/02/Website-previews.00_34_32_04.Still012.jpg", title: "Echoes of Andalusia — Adam del Monte, Solo Guitar", emoji: "🎸",
     location: "De Anza College, VPAC Theatre, 21250 Stevens Creek Blvd, Cupertino, CA",
     lat: 37.3196, lng: -122.0452,
     when: "Tuesday, April 28, 2026. Doors open 45 min before start.",
@@ -194,7 +186,6 @@ export const DEFAULT_IDEAS = [
     ],
     tags: ["Music","Indoor","Classical"],
     link: "https://concertsinamerica.com/andalusia/",
-    image: "https://images.squarespace-cdn.com/content/v1/65e8ca740c7a791c1f2f6bba/76bd8025-eec4-4df7-8334-96734bf289d3/2.jpg",
   },
 ];
 

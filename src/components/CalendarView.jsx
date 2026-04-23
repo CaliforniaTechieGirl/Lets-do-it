@@ -49,28 +49,20 @@ export default function CalendarView({ ideas, onSelect }) {
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 2 }}>
-        {cells.map((day, i) => {
-          const dayIdeas = byDay[day] || [];
-          const visible = dayIdeas.slice(0, 2);
-          const extra = dayIdeas.length - visible.length;
-          return (
-            <div key={i} style={{ minHeight: 58, minWidth: 0, overflow: "hidden", background: day ? (isToday(day) ? T.primaryContainer : T.surface) : "transparent", border: day ? `1px solid ${isToday(day) ? T.primaryMid : T.surfaceMid}` : "none", borderRadius: T.radius, padding: "3px 2px" }}>
-              {day && (
-                <>
-                  <div style={{ fontSize: 10, fontWeight: isToday(day) ? 600 : 400, color: isToday(day) ? T.primary : T.textMuted, textAlign: "center", marginBottom: 2 }}>{day}</div>
-                  {visible.map(idea => (
-                    <button key={idea.id} onClick={() => onSelect(idea)} style={{ display: "block", width: "100%", textAlign: "left", fontSize: 9, padding: "2px 3px", borderRadius: 3, background: T.primaryLight, color: T.primary, border: "none", cursor: "pointer", marginBottom: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: 600, fontFamily: T.fontFamily }}>
-                      {idea.title}
-                    </button>
-                  ))}
-                  {extra > 0 && (
-                    <div style={{ fontSize: 9, color: T.textMuted, textAlign: "center", fontWeight: 500 }}>+{extra} more</div>
-                  )}
-                </>
-              )}
-            </div>
-          );
-        })}
+        {cells.map((day, i) => (
+          <div key={i} style={{ minHeight: 58, minWidth: 0, background: day ? (isToday(day) ? T.secondaryContainer : T.surface) : "transparent", border: "none", borderRadius: T.radius, padding: "3px 2px" }}>
+            {day && (
+              <>
+                <div style={{ fontSize: 10, fontWeight: isToday(day) ? 600 : 400, color: isToday(day) ? T.secondary : T.textMuted, textAlign: "center", marginBottom: 2 }}>{day}</div>
+                {(byDay[day] || []).map(idea => (
+                  <button key={idea.id} onClick={() => onSelect(idea)} style={{ display: "block", width: "100%", textAlign: "left", fontSize: 9, padding: "2px 3px", borderRadius: 3, background: T.primaryContainer, color: T.primary, border: "none", cursor: "pointer", marginBottom: 1, whiteSpace: "normal", wordBreak: "break-word", fontWeight: 600, fontFamily: T.fontFamily }}>
+                    {idea.title}
+                  </button>
+                ))}
+              </>
+            )}
+          </div>
+        ))}
       </div>
 
       {undated.length > 0 && (

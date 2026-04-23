@@ -31,31 +31,13 @@ export default function SuggestionsPanel({ ideas, suggestions, setSuggestions, o
 
   return (
     <div>
-      {/* Mode toggle — segmented control */}
-      <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
-        <div style={{ display: "inline-flex", background: T.surfaceMid, borderRadius: T.radiusFull, padding: 3 }}>
-          {[{ id: "auto", label: "Suggest for me" }, { id: "custom", label: "Custom search" }].map(m => (
-            <button
-              key={m.id}
-              onClick={() => setMode(m.id)}
-              style={{
-                fontFamily: T.fontFamily,
-                fontSize: 12,
-                fontWeight: mode === m.id ? 700 : 500,
-                padding: "7px 18px",
-                borderRadius: T.radiusFull,
-                border: "none",
-                cursor: "pointer",
-                background: mode === m.id ? T.surface : "transparent",
-                color: mode === m.id ? T.text : T.textMuted,
-                boxShadow: mode === m.id ? T.shadowCard : "none",
-                transition: "all 0.15s",
-              }}
-            >
-              {m.label}
-            </button>
-          ))}
-        </div>
+      {/* Mode toggle */}
+      <div style={{ display: "flex", gap: 6, marginBottom: 20 }}>
+        {[{ id: "auto", label: "Suggest for me" }, { id: "custom", label: "Custom search" }].map(m => (
+          <button key={m.id} onClick={() => setMode(m.id)} style={{ ...btn(mode === m.id ? "primary" : "muted"), fontSize: 12 }}>
+            {m.label}
+          </button>
+        ))}
       </div>
 
       {mode === "auto" && (
@@ -83,7 +65,7 @@ export default function SuggestionsPanel({ ideas, suggestions, setSuggestions, o
         </div>
       )}
 
-      <div style={{ marginBottom: 28, textAlign: "center" }}>
+      <div style={{ marginBottom: 28 }}>
         <button onClick={fetchSuggestions} disabled={!canSubmit} style={{ ...btn("primary"), fontSize: 13, padding: "10px 28px", opacity: canSubmit ? 1 : 0.5 }}>
           {loading ? "Finding ideas…" : "Find Ideas"}
         </button>

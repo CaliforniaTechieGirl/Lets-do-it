@@ -1,4 +1,3 @@
-import { useEffect, useRef } from "react";
 import { T, TAG_COLORS, btn, getIdeaIcon } from "../theme.js";
 import { makeICS, mapsUrl } from "../utils.js";
 
@@ -17,8 +16,23 @@ function TagPill({ tag }) {
 function InfoBlock({ label, value, span }) {
   return (
     <div style={{ background: T.bg, borderRadius: T.radius, padding: "10px 14px", gridColumn: span === 2 ? "1 / -1" : undefined }}>
-      <p style={{ fontSize: 9, letterSpacing: "0.12em", textTransform: "uppercase", color: T.textMuted, margin: "0 0 3px", fontWeight: 700 }}>{label}</p>
+      <p style={{ fontSize: 9, letterSpacing: "0.12em", textTransform: "uppercase", color: T.tertiary, margin: "0 0 3px", fontWeight: 700 }}>{label}</p>
       <p style={{ fontSize: 12, color: T.textMid, margin: 0, lineHeight: 1.5 }}>{value}</p>
+    </div>
+  );
+}
+
+function HeroImage({ image, tags }) {
+  if (image) {
+    return (
+      <div style={{ width: "100%", height: 240, overflow: "hidden", background: T.surfaceMid, flexShrink: 0 }}>
+        <img src={image} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} loading="lazy" />
+      </div>
+    );
+  }
+  return (
+    <div style={{ width: "100%", height: 240, background: T.primaryContainer, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+      <span dangerouslySetInnerHTML={{ __html: getIdeaIcon(tags) }} style={{ width: 64, height: 64, color: T.primary, display: "flex", alignItems: "center", justifyContent: "center" }} />
     </div>
   );
 }
@@ -41,12 +55,8 @@ function ReactionBar({ ideaId, userName, reactions, onReact }) {
           const count = counts[r] || 0;
           const names = byReaction[r] || [];
           return (
-            <button
-              key={r}
-              onClick={() => onReact(ideaId, active ? null : r)}
-              title={`${REACTION_LABELS[r]}${names.length ? ` · ${names.join(", ")}` : ""}`}
-              style={{ display: "flex", alignItems: "center", gap: 5, padding: "6px 12px", borderRadius: T.radiusFull, border: "none", cursor: "pointer", fontFamily: T.fontFamily, background: active ? c.bg : T.bg, transition: "all 0.15s" }}
-            >
+            <button key={r} onClick={() => onReact(ideaId, active ? null : r)} title={`${REACTION_LABELS[r]}${names.length ? ` · ${names.join(", ")}` : ""}`}
+              style={{ display: "flex", alignItems: "center", gap: 5, padding: "6px 12px", borderRadius: T.radiusFull, border: "none", cursor: "pointer", fontFamily: T.fontFamily, background: active ? c.bg : T.bg, transition: "all 0.15s" }}>
               <span style={{ fontSize: 15 }}>{r}</span>
               {count > 0 && <span style={{ fontSize: 11, fontWeight: 700, color: active ? c.text : T.textMuted }}>{count}</span>}
             </button>
@@ -65,25 +75,13 @@ function ReactionBar({ ideaId, userName, reactions, onReact }) {
 }
 
 export default function IdeaCard({ idea, isOpen, onToggle, onDone, userName, reactions, onReact, onArchive, isSuggestion, onAddSuggestion }) {
-  const cardRef = useRef(null);
   const ideaReactions = reactions[idea.id] || {};
-
-  useEffect(() => {
-    if (isOpen && cardRef.current) {
-      setTimeout(() => {
-        const el = cardRef.current;
-        if (!el) return;
-        const top = el.getBoundingClientRect().top + window.scrollY - 80;
-        window.scrollTo({ top, behavior: "smooth" });
-      }, 50);
-    }
-  }, [isOpen]);
   const reactionCounts = {};
   Object.values(ideaReactions).forEach(r => { reactionCounts[r] = (reactionCounts[r] || 0) + 1; });
   const topReactions = Object.entries(reactionCounts).sort((a, b) => b[1] - a[1]).slice(0, 3);
 
   return (
-    <div ref={cardRef} style={{
+    <div style={{
       background: idea.done ? T.surfaceLow : T.surface,
       borderRadius: T.radiusLg,
       overflow: "hidden",
@@ -97,93 +95,79 @@ export default function IdeaCard({ idea, isOpen, onToggle, onDone, userName, rea
         </div>
       )}
 
-      {/* Card header */}
-      <button onClick={onToggle} style={{ width: "100%", display: "flex", alignItems: "center", gap: 14, padding: "16px 18px", background: "transparent", border: "none", cursor: "pointer", textAlign: "left", fontFamily: T.fontFamily }}>
-        {/* Icon */}
-        <div style={{ width: 40, height: 40, borderRadius: T.radius, background: T.primaryContainer, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-          <span dangerouslySetInnerHTML={{ __html: getIdeaIcon(idea.tags) }} style={{ width: 20, height: 20, color: T.primary, display: "flex", alignItems: "center", justifyContent: "center" }} />
-        </div>
+      {/* Hero image — always visible, never repeated */}
+      <HeroImage image={idea.image} tags={idea.tags} />
 
+      {/* Card header — clickable, always visible */}
+      <button onClick={onToggle} style={{ width: "100%", display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, padding: "14px 16px 12px", background: "transparent", border: "none", cursor: "pointer", textAlign: "left", fontFamily: T.fontFamily }}>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: idea.done ? T.textMuted : T.text, letterSpacing: "-0.01em", lineHeight: 1.3 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: idea.done ? T.textMuted : T.text, letterSpacing: "-0.01em", lineHeight: 1.3, marginBottom: 4 }}>
             {idea.done ? <s>{idea.title}</s> : idea.title}
           </div>
-          <div style={{ fontSize: 11, color: T.textMuted, marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: 400 }}>
+          <div style={{ fontSize: 11, color: T.textMuted, marginBottom: 8 }}>
             {idea.when}
+          </div>
+          <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+            {idea.tags.map(t => <TagPill key={t} tag={t} />)}
           </div>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6, flexShrink: 0, paddingTop: 2 }}>
           {topReactions.length > 0 && (
-            <span style={{ fontSize: 12, letterSpacing: "0.05em" }}>
-              {topReactions.map(([r, c]) => `${r}${c > 1 ? c : ""}`).join(" ")}
-            </span>
+            <span style={{ fontSize: 12 }}>{topReactions.map(([r, c]) => `${r}${c > 1 ? c : ""}`).join(" ")}</span>
           )}
           <span style={{ background: T.secondaryContainer, color: T.secondary, fontSize: 9, fontWeight: 700, padding: "3px 9px", borderRadius: T.radiusFull, whiteSpace: "nowrap", letterSpacing: "0.05em", textTransform: "uppercase" }}>
             {idea.costBadge}
           </span>
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke={T.textMuted} strokeWidth="1.5" strokeLinecap="round" style={{ transform: isOpen ? "rotate(180deg)" : "none", transition: "transform 0.15s", flexShrink: 0 }}>
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke={T.textMuted} strokeWidth="1.5" strokeLinecap="round" style={{ transform: isOpen ? "rotate(180deg)" : "none", transition: "transform 0.15s" }}>
             <polyline points="2,4 6,8 10,4"/>
           </svg>
         </div>
       </button>
 
-      {/* Expanded body */}
+      {/* Expanded detail — appends below, nothing above changes */}
       {isOpen && (
-        <div style={{ padding: "4px 18px 20px" }}>
-          {/* Hero image */}
-          {idea.image && (
-            <div style={{ margin: "0 -18px 14px", height: 180, overflow: "hidden" }}>
-              <img src={idea.image} alt={idea.title} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-            </div>
-          )}
-          {/* Tags */}
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 14 }}>
-            {idea.tags.map(t => <TagPill key={t} tag={t} />)}
-          </div>
+        <div style={{ padding: "0 18px 20px" }}>
+          <div style={{ borderTop: `1px solid ${T.surfaceMid}`, marginBottom: 16 }} />
 
-          <p style={{ fontSize: 13, lineHeight: 1.75, color: T.textMid, margin: "0 0 14px", fontWeight: 400 }}>{idea.description}</p>
+          <p style={{ fontSize: 13, lineHeight: 1.75, color: T.textMid, margin: "0 0 14px" }}>{idea.description}</p>
 
-          {/* Info blocks — tonal background, no borders */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, marginBottom: 14 }}>
             <InfoBlock label="Where" value={idea.location} />
             <InfoBlock label="When" value={idea.when} />
             <InfoBlock label="Cost" value={idea.cost} span={2} />
           </div>
 
-          {/* Good to Know */}
-          <div style={{ background: T.primaryContainer, borderRadius: T.radiusMd, padding: "12px 16px", marginBottom: 16 }}>
-            <p style={{ fontSize: 9, letterSpacing: "0.12em", textTransform: "uppercase", color: T.primary, margin: "0 0 8px", fontWeight: 700 }}>Good to Know</p>
+          <div style={{ background: T.surfaceMid, borderRadius: T.radiusMd, padding: "12px 16px", marginBottom: 16 }}>
+            <p style={{ fontSize: 9, letterSpacing: "0.12em", textTransform: "uppercase", color: T.textMid, margin: "0 0 8px", fontWeight: 700 }}>Good to Know</p>
             <ul style={{ margin: 0, padding: "0 0 0 14px" }}>
-              {idea.notes.map((n, i) => <li key={i} style={{ fontSize: 12, color: T.textMid, lineHeight: 1.7, marginBottom: 3 }}>{n}</li>)}
+              {idea.notes.map((n, i) => <li key={i} style={{ fontSize: 12, color: T.text, lineHeight: 1.7, marginBottom: 3 }}>{n}</li>)}
             </ul>
           </div>
 
-          {/* Reactions */}
           <ReactionBar ideaId={idea.id} userName={userName} reactions={reactions} onReact={onReact} />
 
-          {/* Actions */}
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-            <a href={idea.link} target="_blank" rel="noreferrer" style={{ ...btn("primary"), textDecoration: "none", fontSize: 12 }}>
+            <a href={idea.link} target="_blank" rel="noreferrer" style={{ ...btn("primary"), textDecoration: "none" }}>
               View Website
             </a>
-            <a href={mapsUrl(idea)} target="_blank" rel="noreferrer" style={{ ...btn("muted"), textDecoration: "none", color: T.tertiary, fontSize: 12 }}>
+            <a href={mapsUrl(idea)} target="_blank" rel="noreferrer" style={{ ...btn("tertiary"), textDecoration: "none" }}>
               Open in Maps
             </a>
-            <button onClick={() => makeICS(idea)} style={{ ...btn("muted"), fontSize: 12 }}>
+            <button onClick={() => makeICS(idea)} style={{ ...btn("muted") }}>
               Add to Calendar
             </button>
             {isSuggestion ? (
-              <button onClick={() => onAddSuggestion(idea)} style={{ ...btn("secondary"), fontSize: 12 }}>
+              <button onClick={() => onAddSuggestion(idea)} style={{ ...btn("secondary") }}>
                 + Add to List
               </button>
             ) : (
               <>
-                <button onClick={() => onDone(idea.id)} style={{ ...btn(idea.done ? "tertiary" : "muted"), fontSize: 12, color: idea.done ? T.tertiary : T.textMid }}>
+                <button onClick={() => onDone(idea.id)} style={{ ...btn(idea.done ? "tertiary" : "muted"), color: idea.done ? T.tertiary : T.textMid }}>
                   {idea.done ? "✓ Done" : "Mark as Done"}
                 </button>
                 {idea.eventDate && (
-                  <button onClick={() => onArchive(idea.id)} style={{ ...btn("muted"), fontSize: 12, color: T.textMuted }}>
+                  <button onClick={() => onArchive(idea.id)} style={{ ...btn("muted"), color: T.textMuted }}>
                     Archive
                   </button>
                 )}

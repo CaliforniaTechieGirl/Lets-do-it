@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { DEFAULT_IDEAS, KEYS } from "./data.js";
-import { T, ICONS, btn } from "./theme.js";
+import { T, ICONS } from "./theme.js";
 import { storageGet, storageSet } from "./storage.js";
 import IdeaCard from "./components/IdeaCard.jsx";
 import CalendarView from "./components/CalendarView.jsx";

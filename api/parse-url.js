@@ -34,6 +34,11 @@ export default async function handler(req) {
       signal: AbortSignal.timeout(8000),
     });
     const html = await pageRes.text();
+    // Extract og:image before stripping tags
+    const ogImageMatch = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i)
+                      || html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i);
+    const ogImage = ogImageMatch ? ogImageMatch[1] : null;
+
     // Strip tags, collapse whitespace, cap at 6000 chars
     pageText = html
       .replace(/<script[\s\S]*?<\/script>/gi, "")
@@ -61,6 +66,7 @@ Extract the following fields and return ONLY a JSON object, no markdown, no expl
 {
   "title": "Short descriptive title",
   "emoji": "Single most relevant emoji",
+  "image": null,
   "location": "Full address or venue name + city + state if available",
   "lat": null,
   "lng": null,
@@ -100,6 +106,8 @@ Rules:
     const text = data.content?.find((b) => b.type === "text")?.text || "";
     const clean = text.replace(/```json|```/g, "").trim();
     const idea = JSON.parse(clean);
+    // Attach og:image if found and idea doesn't already have one
+    if (ogImage && !idea.image) idea.image = ogImage;
 
     return new Response(JSON.stringify(idea), {
       status: 200,
